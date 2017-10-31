@@ -4,9 +4,11 @@ import android.content.Intent;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.view.View;
+import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.ListView;
+import android.widget.AdapterView.OnItemClickListener;
 
 import com.sjsu.cmpe277.weather.R;
 
@@ -35,6 +37,7 @@ public class MainActivity extends AppCompatActivity {
 
 
         listView = (ListView) findViewById(R.id.listView);
+
         String [] cities = new String[3];
         cities[0] = "Los Angeles";
         cities[1] = "San Jose";
