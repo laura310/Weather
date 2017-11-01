@@ -8,6 +8,7 @@ import android.database.sqlite.SQLiteOpenHelper;
 
 import java.util.ArrayList;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 
 /**
@@ -63,8 +64,8 @@ public class CityDB extends SQLiteOpenHelper {
                 new String[] { name });
     }
 
-    public Set<String> getAllCities() {
-        Set<String> set = new HashSet<String>();
+    public List<String> getAllCities() {
+        List<String> set = new ArrayList<>();
 
         SQLiteDatabase db = this.getReadableDatabase();
         String selectAllFromTable = "select * from " + CITY_TABLE_NAME;
