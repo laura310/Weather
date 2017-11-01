@@ -19,6 +19,7 @@ import com.google.android.gms.location.places.AutocompleteFilter;
 import com.google.android.gms.location.places.Place;
 import com.google.android.gms.location.places.ui.PlaceAutocomplete;
 import com.sjsu.cmpe277.weather.DataModel.CityDB;
+import com.sjsu.cmpe277.weather.DataModel.WeatherConstants;
 import com.sjsu.cmpe277.weather.R;
 
 import org.apache.log4j.chainsaw.Main;
@@ -77,6 +78,18 @@ public class MainActivity extends AppCompatActivity {
         );
         listView.setAdapter(listViewAdapter);
 
+        listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+
+            @Override
+            public void onItemClick(AdapterView<?> parent, final View view, int position, long id) {
+
+                String cityName = (String) listView.getItemAtPosition(position);
+                Intent intent = new Intent(MainActivity.this, CityViewActivity.class);
+                intent.putExtra(WeatherConstants.LIST_VIEW_ITEM, cityName);
+                startActivity(intent);
+            }
+
+        });
 
 
     }

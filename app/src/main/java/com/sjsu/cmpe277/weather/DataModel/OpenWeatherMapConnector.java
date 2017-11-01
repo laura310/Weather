@@ -8,6 +8,8 @@ import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.ProtocolException;
 import java.net.URL;
+import java.util.ArrayList;
+import java.util.List;
 
 import org.apache.log4j.Logger;
 import org.json.JSONException;
@@ -68,5 +70,20 @@ public class OpenWeatherMapConnector {
 
     public void getCurWeatByCityId() {
 
+    }
+
+    /**
+     * return city info on top of the cityview. including:
+     * city name, weather status, and current temperature
+     * @return
+     */
+    public List<String> getCityInfo() {
+        // To be implemented.
+        List<String> cityInfo = new ArrayList<>();
+        cityInfo.add("San Jose");
+        cityInfo.add("Clear");
+        cityInfo.add("16 C");
+
+        return cityInfo;
     }
 }
