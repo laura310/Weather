@@ -23,12 +23,12 @@ public class OpenWeatherMapConnector {
     final static Logger logger = Logger.getLogger(OpenWeatherMapConnector.class);
 
 
-    public JSONObject getCurWeatByCityName(String cityName) {
+    public String getCurWeatByCityName(String cityName) {
         String urlString = "http://api.openweathermap.org/data/2.5/weather?id=524901&APPID=b4631e5c54e1a3a9fdda89fca90d4114&q=" + cityName;
 
         URL url = null;
         BufferedReader br = null;
-        JSONObject json = new JSONObject();
+        String jsonText = "";
         try {
             url = new URL(urlString);
 
@@ -40,24 +40,19 @@ public class OpenWeatherMapConnector {
             logger.info("Response Code : " + responseCode);
 
             br = new BufferedReader(new InputStreamReader(con.getInputStream()));
-            String jsonText = readAll(br);
-            System.out.println("&&&&\n" + jsonText);
-            json = new JSONObject(jsonText);
+            jsonText = readAll(br);
 
-            br.close();
+//            br.close();
         } catch (MalformedURLException e) {
             e.printStackTrace();
         } catch (ProtocolException e) {
             logger.error("Exception from con.setRequestMethod", e);
         } catch (IOException e) {
             e.printStackTrace();
-        } catch (JSONException e) {
-            logger.error("Exception from creating JSONObject", e);
         }
 
-        return json;
+        return jsonText;
     }
-
 
     private String readAll(Reader rd) throws IOException {
         StringBuilder sb = new StringBuilder();
@@ -70,20 +65,5 @@ public class OpenWeatherMapConnector {
 
     public void getCurWeatByCityId() {
 
-    }
-
-    /**
-     * return city info on top of the cityview. including:
-     * city name, weather status, and current temperature
-     * @return
-     */
-    public List<String> getCityInfo() {
-        // To be implemented.
-        List<String> cityInfo = new ArrayList<>();
-        cityInfo.add("San Jose");
-        cityInfo.add("Clear");
-        cityInfo.add("16 C");
-
-        return cityInfo;
     }
 }
