@@ -57,7 +57,7 @@ public class CityDB extends SQLiteOpenHelper {
         return res;
     }
 
-    public Integer deleteContact (String name) {
+    public Integer deleteCity (String name) {
         SQLiteDatabase db = this.getWritableDatabase();
         return db.delete(CITY_TABLE_NAME,
                 CITY_COLUMN_NAME + " = ? ",

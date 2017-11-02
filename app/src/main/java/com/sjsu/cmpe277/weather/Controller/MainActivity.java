@@ -36,6 +36,7 @@ public class MainActivity extends AppCompatActivity {
     ListView listView;
     CityDB cityDB;
     int PLACE_AUTOCOMPLETE_REQUEST_CODE = 1;
+    ArrayAdapter listViewAdapter = null;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -74,7 +75,7 @@ public class MainActivity extends AppCompatActivity {
         List<String> cities = cityDB.getAllCities();
 
 
-        ArrayAdapter<String> listViewAdapter = new ArrayAdapter<String>(
+        listViewAdapter = new ArrayAdapter<String>(
                 this,
                 android.R.layout.simple_list_item_1,
                 cities
@@ -85,7 +86,6 @@ public class MainActivity extends AppCompatActivity {
 
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-
                 String cityName = (String) listView.getItemAtPosition(position);
                 Intent intent = new Intent(MainActivity.this, CityViewActivity.class);
                 intent.putExtra(WeatherConstants.LIST_VIEW_ITEM, cityName);
@@ -96,7 +96,7 @@ public class MainActivity extends AppCompatActivity {
 
         listView.setLongClickable(true);
         listView.setOnItemLongClickListener(new AdapterView.OnItemLongClickListener() {
-            public boolean onItemLongClick(AdapterView<?> parent, View v, int position, long id) {
+            public boolean onItemLongClick(AdapterView<?> parent, View v, final int position, long id) {
                 //Do your tasks here
 
 
@@ -109,6 +109,10 @@ public class MainActivity extends AppCompatActivity {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
                         //do your work here
+                        cityDB.deleteCity(listViewAdapter.getItem(position).toString());
+                        listViewAdapter.remove(listViewAdapter.getItem(position));
+                        listViewAdapter.notifyDataSetChanged();
+
                         dialog.dismiss();
 
                     }
