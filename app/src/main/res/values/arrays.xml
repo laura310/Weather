@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <array name="pref_temp_array">
+        <item>@string/pref_C_label</item>
+        <item>@string/pref_F_label</item>
+    </array>
+    <array name="pref_temp_value">
+        <item>@string/pref_C_value</item>
+        <item>@string/pref_F_value</item>
+    </array>
+</resources>

@@ -1,3 +1,10 @@
 <resources>
     <string name="app_name">Weather</string>
+    <string name="action_settings">Settings</string>
+    <string name="pref_temp_label">Temperature Unit</string>
+    <string name="pref_C_label">C</string>
+    <string name="pref_F_label">F</string>
+    <string name="pref_temp_key" translatable="false">tempUnit</string>
+    <string name="pref_C_value" translatable="false">C</string>
+    <string name="pref_F_value" translatable="false">F</string>
 </resources>

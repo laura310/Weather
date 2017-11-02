@@ -3,10 +3,15 @@ package com.sjsu.cmpe277.weather.Controller;
 import android.app.Activity;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.support.v7.preference.PreferenceManager;
 import android.util.Log;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
@@ -65,13 +70,7 @@ public class MainActivity extends AppCompatActivity {
 
 
         listView = (ListView) findViewById(R.id.listView);
-        /*cityDB.insertCity("san jose");
-        cityDB.insertCity("sunnyvale");
-        cityDB.insertCity("sf");*/
-     /*   String [] cities = new String[3];
-        cities[0] = "Los Angeles";
-        cities[1] = "San Jose";
-        cities[2] = "London";*/
+
         List<String> cities = cityDB.getAllCities();
 
 
@@ -93,6 +92,10 @@ public class MainActivity extends AppCompatActivity {
             }
 
         });
+
+        SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(MainActivity.this);
+        String s = preferences.getString(getString(R.string.pref_temp_key), getString(R.string.pref_C_value));
+        Log.i("Info", "current unit is " + s);
 
         listView.setLongClickable(true);
         listView.setOnItemLongClickListener(new AdapterView.OnItemLongClickListener() {
@@ -127,7 +130,6 @@ public class MainActivity extends AppCompatActivity {
                 });
 
                 alert.show();
-
                 return true;
             }
         });
@@ -135,7 +137,23 @@ public class MainActivity extends AppCompatActivity {
 
     }
 
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        MenuInflater inflater = getMenuInflater();
+        inflater.inflate(R.menu.setting, menu);
+        return true;
+    }
 
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        int id = item.getItemId();
+        if(id == R.id.action_settings) {
+            Intent intent = new Intent(this, SettingActivity.class);
+            startActivity(intent);
+            return true;
+        }
+        return super.onOptionsItemSelected(item);
+    }
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
@@ -147,6 +165,7 @@ public class MainActivity extends AppCompatActivity {
                    Toast.makeText(MainActivity.this, "The cities you entered has been added before", Toast.LENGTH_LONG).show();
                     Log.i("Info", "places added");
                 }
+               // Log.i("Info", place.getLatLng().toString());
                 cityDB.insertCity(place.getName().toString());
                 Intent intent = new Intent(getApplicationContext(), MainActivity.class);
                 startActivity(intent);
@@ -161,4 +180,5 @@ public class MainActivity extends AppCompatActivity {
             }
         }
     }
+
 }

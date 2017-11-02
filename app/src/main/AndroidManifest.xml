@@ -13,13 +13,21 @@
             android:name="com.google.android.geo.API_KEY"
             android:value="AIzaSyDqtpxJ3cmrsXnusYYqumM3TSkTAXWXmFQ"
             />
-        <activity android:name=".Controller.MainActivity">
+        <activity android:name=".Controller.MainActivity"
+            android:launchMode="singleTop">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
         <activity android:name=".Controller.CityViewActivity">
+        </activity>
+        <activity android:name=".Controller.SettingActivity"
+            android:label="@string/action_settings"
+            android:parentActivityName=".Controller.MainActivity">
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value=".Controller.MainActivity"/>
         </activity>
     </application>
 
