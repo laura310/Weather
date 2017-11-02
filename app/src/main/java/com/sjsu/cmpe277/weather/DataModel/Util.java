@@ -7,13 +7,13 @@ import android.content.SharedPreferences;
  */
 
 public class Util {
-        public static float convertTemperature(float temperature, SharedPreferences sp) {
+        public static int convertTemperature(float temperature, SharedPreferences sp) {
             if (sp.getString("unit", "°C").equals("°C")) {
-                return Util.kelvinToCelsius(temperature);
+                return (int) Util.kelvinToCelsius(temperature);
             } else if (sp.getString("unit", "°C").equals("°F")) {
-                return Util.kelvinToFahrenheit(temperature);
+                return (int) Util.kelvinToFahrenheit(temperature);
             } else {
-                return temperature;
+                return (int) temperature;
             }
         }
 
