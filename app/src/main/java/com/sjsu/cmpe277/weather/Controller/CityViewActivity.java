@@ -78,7 +78,7 @@ public class CityViewActivity extends AppCompatActivity {
         cityNameTxtView.setText(cityName);
         new FetchCurWeatherTask(cityName, this).execute();
         new FetchTodayForecastTask(cityName, this).execute();
-        new ForeCast5DayTask(cityName, this).execute();
+        new Fetch5DayForeCastTask(cityName, this).execute();
 
         ActionBar actionBar = this.getSupportActionBar();
         if(actionBar != null) {
@@ -190,11 +190,11 @@ public class CityViewActivity extends AppCompatActivity {
         }
     }
 
-    private class ForeCast5DayTask extends AsyncTask<String, Void, String> {
+    private class Fetch5DayForeCastTask extends AsyncTask<String, Void, String> {
         String cityName;
         Context context;
 
-        ForeCast5DayTask(String cityName, Context context) {
+        Fetch5DayForeCastTask(String cityName, Context context) {
             this.cityName = cityName;
             this.context = context;
         }

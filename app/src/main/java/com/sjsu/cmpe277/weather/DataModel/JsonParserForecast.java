@@ -3,6 +3,7 @@ package com.sjsu.cmpe277.weather.DataModel;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.preference.PreferenceManager;
+import android.util.Log;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -52,9 +53,8 @@ public class JsonParserForecast {
 
             for(int i = 0; i < 8; i++) {
                 long temp = jsonObject.getJSONObject("main").getLong("temp");
-//                String tempStr = "" + Util.convertTemperature(temp, preferences);
-//                infos.add(tempStr);
-                infos.add("temp");
+                String tempStr = "" + Util.convertTemperature(temp, preferences);
+                infos.add(tempStr);
             }
 
         } catch (JSONException e) {
@@ -64,82 +64,36 @@ public class JsonParserForecast {
         return infos;
     }
 
-    // list view
-//    public List<String> getForecast5dayInfo() throws JSONException {
-//        List<String> infos = new ArrayList<>();
-//        JSONArray jsonArray = jsonObject.getJSONArray("list");
-//
-//        //for day 0
-//        JSONObject day0obj = jsonArray.getJSONObject(4);
-//        JSONObject day0WeatherObj = day0obj.getJSONArray("weather").getJSONObject(0);
-//        JSONObject day0MainObj = day0obj.getJSONObject("main");
-//
-//        String dateDay0 = getDateDay(day0obj.getString("dt_txt"));
-//        String status0 = day0WeatherObj.getString("main");
-//        String high0 = day0MainObj.getString("temp_max");
-//        String low0 = day0MainObj.getString("temp_min");
-//
-//        infos.add(formatList(dateDay0, status0, high0, low0));
-//
-//        //for remaining days
-//        for(int i = 1; 4 + i * 8 < jsonArray.length(); i++) {
-//            JSONObject dayObj = jsonArray.getJSONObject(4 + i * 8);
-//            JSONObject dayWeatherObj = dayObj.getJSONArray("weather").getJSONObject(0);
-//            JSONObject dayMainObj = dayObj.getJSONObject("main");
-//            String dateDay = getDateDay(dayObj.getString("dt_txt"));
-//
-//            String status = dayWeatherObj.getString("main");
-//            String high = dayMainObj.getString("temp_max");
-//            String low = dayMainObj.getString("temp_min");
-//
-//            infos.add(formatList(dateDay, status, high, low));
-//        }
-//
-//        return infos;
-//    }
-
     // grid view
     public List<String> getForecast5dayInfo() throws JSONException {
         List<String> infos = new ArrayList<>();
         JSONArray jsonArray = jsonObject.getJSONArray("list");
 
-        //for day 0
-        JSONObject day0obj = jsonArray.getJSONObject(4);
-        JSONObject day0WeatherObj = day0obj.getJSONArray("weather").getJSONObject(0);
-        JSONObject day0MainObj = day0obj.getJSONObject("main");
+        for(int i = 1; -4 + i * 8 < jsonArray.length(); i++) {
+            int dayNoonIndex = -4 + i * 8;
+            JSONObject dayNoonObj = jsonArray.getJSONObject(dayNoonIndex);
+            JSONObject dayNoonWeatherObj = dayNoonObj.getJSONArray("weather").getJSONObject(0);
+            JSONObject dayNoonMainObj = dayNoonObj.getJSONObject("main");
+            Log.i("&&&&", dayNoonMainObj.toString());
+            String dateDay = getDateDay(dayNoonObj.getString("dt_txt"));
 
-        String dateDay0 = getDateDay(day0obj.getString("dt_txt"));
-        String status0 = day0WeatherObj.getString("main");
-        String high0 = day0MainObj.getString("temp_max");
-        String low0 = day0MainObj.getString("temp_min");
+            String status = dayNoonWeatherObj.getString("main");
 
-        infos.add(dateDay0);
-        infos.add(status0);
-        infos.add(high0);
-        infos.add(low0);
+            long dayHigh = Math.max(dayNoonMainObj.getLong("temp_min"),
+                                    jsonArray.getJSONObject(dayNoonIndex + 1).getJSONObject("main").getLong("temp_min"));
+            long dayLow = Math.min(jsonArray.getJSONObject(dayNoonIndex - 4).getJSONObject("main").getLong("temp_min"),
+                                   jsonArray.getJSONObject(dayNoonIndex + 4).getJSONObject("main").getLong("temp_min"));
 
-        //for remaining days
-        for(int i = 1; 4 + i * 8 < jsonArray.length(); i++) {
-            JSONObject dayObj = jsonArray.getJSONObject(4 + i * 8);
-            JSONObject dayWeatherObj = dayObj.getJSONArray("weather").getJSONObject(0);
-            JSONObject dayMainObj = dayObj.getJSONObject("main");
-            String dateDay = getDateDay(dayObj.getString("dt_txt"));
-
-            String status = dayWeatherObj.getString("main");
-            String high = dayMainObj.getString("temp_max");
-            String low = dayMainObj.getString("temp_min");
+            String high = Util.convertTemperature(dayHigh, preferences) + "";
+            String low = Util.convertTemperature(dayLow, preferences) + "";
 
             infos.add(dateDay);
             infos.add(status);
             infos.add(high);
             infos.add(low);
         }
-
+        Log.i("INFO", "infos: " + infos);
         return infos;
-    }
-
-    private String formatList(String dateDay, String status, String high, String low) {
-        return dateDay + "      " + status + "      " + high + "        " + low;
     }
 
     private String getDateDay(String dateStr) {

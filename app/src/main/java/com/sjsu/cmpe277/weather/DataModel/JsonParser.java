@@ -48,18 +48,15 @@ public class JsonParser {
 
         switch (level) {
             case AppConstants.CURRENT:
-//                temp =  "" + Util.convertTemperature(curTempK, preferences);
-                temp = "" + (int)(curTempK - 273.15);
+                temp =  "" + Util.convertTemperature(curTempK, preferences);
                 break;
 
             case AppConstants.LOW:
-//                temp =  "" + Util.convertTemperature(lowTempK, preferences);
-                temp = "" + (int)(lowTempK - 273.15);
+                temp =  "" + Util.convertTemperature(lowTempK, preferences);
                 break;
 
             case AppConstants.HIGH:
-//                temp = "" + Util.convertTemperature(highTempK, preferences);
-                temp = "" + (int)(highTempK - 273.15);
+                temp = "" + Util.convertTemperature(highTempK, preferences);
                 break;
 
             default:
@@ -74,56 +71,56 @@ public class JsonParser {
         return jsonArray.getJSONObject(0).getString("main");
     }
 
-    /**
-     * example: return the middle part of this url
-     * //https://maps.googleapis.com/maps/api/timezone/json?location=
-     * //35,139&timestamp=1369824698
-     * //&key=AIzaSyCABeDp8t8r7RkOm_S2T-oOtHwziv1ZxIQ
-     *
-     * @return
-     * @throws JSONException
-     */
-    public String getTimeZoneURLParaPart() throws JSONException {
-        JSONObject coordObject = jsonObject.getJSONObject(AppConstants.CUR_COORD);
-        String lon = coordObject.getString("lon");
-        String lat = coordObject.getString("lat");
-        String latLonPair = lat + "," + lon;
-
-        String timeZoneURLParaPart = latLonPair + "&timestamp=" + getTimeStamp();
-        return timeZoneURLParaPart;
-    }
+//    /**
+//     * example: return the middle part of this url
+//     * //https://maps.googleapis.com/maps/api/timezone/json?location=
+//     * //35,139&timestamp=1369824698
+//     * //&key=AIzaSyCABeDp8t8r7RkOm_S2T-oOtHwziv1ZxIQ
+//     *
+//     * @return
+//     * @throws JSONException
+//     */
+//    public String getTimeZoneURLParaPart() throws JSONException {
+//        JSONObject coordObject = jsonObject.getJSONObject(AppConstants.CUR_COORD);
+//        String lon = coordObject.getString("lon");
+//        String lat = coordObject.getString("lat");
+//        String latLonPair = lat + "," + lon;
+//
+//        String timeZoneURLParaPart = latLonPair + "&timestamp=" + getTimeStamp();
+//        return timeZoneURLParaPart;
+//    }
 
     public String getTimeStamp() throws JSONException {
         return "" +  jsonObject.getLong(AppConstants.CUR_DT);
     }
 
 
-    public String getTodayDate() throws JSONException {
-        long todayEpoch = jsonObject.getLong(AppConstants.CUR_DT);
-
-        JSONObject coordObject = jsonObject.getJSONObject(AppConstants.CUR_COORD);
-        String lon = coordObject.getString("lon");
-        String lat = coordObject.getString("lat");
-        String latLonPair = lat + "," + lon;
-        String timestamp = "" + todayEpoch;
-
-        String google_url = AppConstants.GOOGLE_TIMEZONE_API_URL_BASE1 + latLonPair + AppConstants.GOOGLE_TIMEZONE_API_URL_BASE2
-                            + timestamp + AppConstants.GOOGLE_TIMEZONE_API_URL_BASE2;
-        Log.i("INFO", google_url);
-        URLConnector timezoneConn = new URLConnector(google_url);
-        JSONObject jsonObj = new JSONObject(timezoneConn.getResponse(""));
-        String timeZoneId = jsonObj.getString("timeZoneId");
-
-        Date date = new Date(todayEpoch * 1000L);
-        DateFormat format = new SimpleDateFormat("EEE, MMM d, HH-MM, y");
-//        format.setTimeZone(TimeZone.getTimeZone(timeZoneId));
-        format.setTimeZone(TimeZone.getTimeZone("America/Los_Angeles"));
-
-
-        String todayDate = format.format(date);
-
-        return todayDate;
-
-//        return timestamp;
-    }
+//    public String getTodayDate() throws JSONException {
+//        long todayEpoch = jsonObject.getLong(AppConstants.CUR_DT);
+//
+//        JSONObject coordObject = jsonObject.getJSONObject(AppConstants.CUR_COORD);
+//        String lon = coordObject.getString("lon");
+//        String lat = coordObject.getString("lat");
+//        String latLonPair = lat + "," + lon;
+//        String timestamp = "" + todayEpoch;
+//
+//        String google_url = AppConstants.GOOGLE_TIMEZONE_API_URL_BASE1 + latLonPair + AppConstants.GOOGLE_TIMEZONE_API_URL_BASE2
+//                            + timestamp + AppConstants.GOOGLE_TIMEZONE_API_URL_BASE2;
+//        Log.i("INFO", google_url);
+//        URLConnector timezoneConn = new URLConnector(google_url);
+//        JSONObject jsonObj = new JSONObject(timezoneConn.getResponse(""));
+//        String timeZoneId = jsonObj.getString("timeZoneId");
+//
+//        Date date = new Date(todayEpoch * 1000L);
+//        DateFormat format = new SimpleDateFormat("EEE, MMM d, HH-MM, y");
+////        format.setTimeZone(TimeZone.getTimeZone(timeZoneId));
+//        format.setTimeZone(TimeZone.getTimeZone("America/Los_Angeles"));
+//
+//
+//        String todayDate = format.format(date);
+//
+//        return todayDate;
+//
+////        return timestamp;
+//    }
 }

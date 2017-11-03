@@ -6,6 +6,7 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.Reader;
+import java.io.UnsupportedEncodingException;
 import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.ProtocolException;
@@ -24,8 +25,8 @@ public class URLConnector {
     }
 
     public String getResponse(String addOnTail) {
+        addOnTail = addOnTail.replaceAll("\\s+", "%20");
         String urlString = urlStringBase + addOnTail;
-
 
         URL url = null;
         BufferedReader br = null;
@@ -38,6 +39,8 @@ public class URLConnector {
 
             br = new BufferedReader(new InputStreamReader(con.getInputStream()));
             jsonText = readAll(br);
+
+            Log.i("CONNECTION", "connected to url: " + urlString);
 
             br.close();
         } catch (MalformedURLException e) {

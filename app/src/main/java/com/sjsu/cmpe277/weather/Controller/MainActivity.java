@@ -121,12 +121,9 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
-
+        
         listView = (ListView) findViewById(R.id.listView);
-
         cities = cityDB.getAllCities();
-
-
         listViewAdapter = new ArrayAdapter<String>(
                 this,
                 android.R.layout.simple_list_item_1,
@@ -152,8 +149,6 @@ public class MainActivity extends AppCompatActivity {
         SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(MainActivity.this);
         String s = preferences.getString(getString(R.string.pref_temp_key), getString(R.string.pref_C_value));
         Log.i("Info", "current unit is " + s);
-
-
 
 
         listView.setLongClickable(true);
