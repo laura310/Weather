@@ -1,8 +1,19 @@
 package com.sjsu.cmpe277.weather.Controller;
 
+import android.Manifest;
+import android.app.Activity;
+import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.content.pm.PackageManager;
+import android.location.Criteria;
+import android.location.Geocoder;
+import android.location.Location;
+import android.location.LocationManager;
+import android.support.annotation.NonNull;
+import android.support.v4.app.ActivityCompat;
+import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
@@ -21,6 +32,7 @@ import android.widget.Toast;
 import com.google.android.gms.common.GooglePlayServicesNotAvailableException;
 import com.google.android.gms.common.GooglePlayServicesRepairableException;
 import com.google.android.gms.common.api.Status;
+import com.google.android.gms.identity.intents.Address;
 import com.google.android.gms.location.places.AutocompleteFilter;
 import com.google.android.gms.location.places.Place;
 import com.google.android.gms.location.places.ui.PlaceAutocomplete;
@@ -28,15 +40,26 @@ import com.sjsu.cmpe277.weather.DataModel.AppConstants;
 import com.sjsu.cmpe277.weather.DataModel.CityDB;
 import com.sjsu.cmpe277.weather.R;
 
+
+import org.apache.log4j.chainsaw.Main;
+
 import java.util.List;
+import java.util.Locale;
+import java.util.Set;
 
 public class MainActivity extends AppCompatActivity {
 
     Button addButton;
+    Button addCurrentButton;
     ListView listView;
     CityDB cityDB;
-    int PLACE_AUTOCOMPLETE_REQUEST_CODE = 1;
+    final int PLACE_AUTOCOMPLETE_REQUEST_CODE = 1;
+    final int MY_PERMISSION_REQUEST_CODE = 1;
     ArrayAdapter listViewAdapter = null;
+    LocationManager locationManager;
+    String provider;
+    String currentCity = "";
+    List<String> cities;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -62,11 +85,45 @@ public class MainActivity extends AppCompatActivity {
                 }
             }
         });
+        addCurrentButton = (Button) findViewById(R.id.addCurrentbutton);
+        addCurrentButton.setOnClickListener(new View.OnClickListener() {
+            public void onClick(View arg0) {
+                if (ContextCompat.checkSelfPermission(MainActivity.this,
+                        Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+                    if (ActivityCompat.shouldShowRequestPermissionRationale(MainActivity.this,
+                            Manifest.permission.ACCESS_COARSE_LOCATION)) {
+                            ActivityCompat.requestPermissions(MainActivity.this,
+                                new String[]{Manifest.permission.ACCESS_COARSE_LOCATION}, MY_PERMISSION_REQUEST_CODE);
+                    } else {
+                        ActivityCompat.requestPermissions(MainActivity.this,
+                                new String[]{Manifest.permission.ACCESS_COARSE_LOCATION}, MY_PERMISSION_REQUEST_CODE);
+                    }
+                } else {
+                    locationManager = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
+                    Location location = locationManager.getLastKnownLocation(LocationManager.GPS_PROVIDER);
+                    try{
+                        currentCity = hereLocation(location.getLatitude(), location.getLongitude());
+                        Log.i("Info", currentCity);
+                        List<String> cities = cityDB.getAllCities();
+                        if (cities.contains(currentCity)) {
+                            Toast.makeText(MainActivity.this, "Current location has been added",Toast.LENGTH_LONG).show();
+                        } else {
+                            cityDB.insertCity(currentCity);
+                            listViewAdapter.add(currentCity);
+                            listViewAdapter.notifyDataSetChanged();
+                        }
+                    } catch(Exception e){
+                        Toast.makeText(MainActivity.this, "Location Not Available",Toast.LENGTH_LONG).show();
+                        Log.e("Info","error");
+                    }
+                }
+            }
+        });
 
 
         listView = (ListView) findViewById(R.id.listView);
 
-        List<String> cities = cityDB.getAllCities();
+        cities = cityDB.getAllCities();
 
 
         listViewAdapter = new ArrayAdapter<String>(
@@ -83,6 +140,7 @@ public class MainActivity extends AppCompatActivity {
                 String cityName = (String) listView.getItemAtPosition(position);
                 Intent intent = new Intent(MainActivity.this, CityViewActivity.class);
                 intent.putExtra(AppConstants.LIST_VIEW_CityName, cityName);
+                intent.putExtra(AppConstants.LIST_VIEW_CurrentCityName, currentCity);
                 startActivity(intent);
             }
 
@@ -91,6 +149,9 @@ public class MainActivity extends AppCompatActivity {
         SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(MainActivity.this);
         String s = preferences.getString(getString(R.string.pref_temp_key), getString(R.string.pref_C_value));
         Log.i("Info", "current unit is " + s);
+
+
+
 
         listView.setLongClickable(true);
         listView.setOnItemLongClickListener(new AdapterView.OnItemLongClickListener() {
@@ -130,6 +191,30 @@ public class MainActivity extends AppCompatActivity {
         });
 
 
+    }
+    @Override
+    public void onRequestPermissionsResult(int requestCode,  String[] permissions,  int[] grantResults){
+        switch (requestCode) {
+            case MY_PERMISSION_REQUEST_CODE:{
+                if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED){
+                    if (ContextCompat.checkSelfPermission(MainActivity.this,
+                            Manifest.permission.ACCESS_COARSE_LOCATION) == PackageManager.PERMISSION_GRANTED) {
+                            locationManager = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
+                            Location location = locationManager.getLastKnownLocation(LocationManager.NETWORK_PROVIDER);
+                            try{
+                                currentCity = hereLocation(location.getLatitude(), location.getLongitude());
+                                Log.i("Info", currentCity);
+                                cityDB.insertCity(currentCity);
+                            } catch(Exception e){
+                                Toast.makeText(MainActivity.this, "Location Not Available",Toast.LENGTH_LONG).show();
+                                Log.e("error", e.toString());
+                            }
+                    }
+                } else {
+                    Log.e("Error", "No permission");
+                }
+            }
+        }
     }
 
     @Override
@@ -174,6 +259,23 @@ public class MainActivity extends AppCompatActivity {
                 // The user canceled the operation.
             }
         }
+    }
+
+    public String hereLocation(double lat, double lon) {
+        String curCity = "";
+
+        Geocoder geocoder = new Geocoder(MainActivity.this, Locale.getDefault());
+
+        List<android.location.Address> addressList;
+        try{
+            addressList = geocoder.getFromLocation(lat,lon,1);
+            if (addressList.size()> 0) {
+                curCity = addressList.get(0).getLocality();
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return curCity;
     }
 
 }
