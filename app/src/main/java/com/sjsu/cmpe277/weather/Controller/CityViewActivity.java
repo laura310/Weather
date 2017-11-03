@@ -2,24 +2,23 @@ package com.sjsu.cmpe277.weather.Controller;
 
 import android.content.Context;
 import android.content.Intent;
-import android.database.sqlite.SQLiteOpenHelper;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
+import android.widget.ArrayAdapter;
+import android.widget.GridView;
 import android.view.MotionEvent;
 import android.widget.TextView;
 import android.widget.Toast;
 
 import com.sjsu.cmpe277.weather.DataModel.AppConstants;
-import com.sjsu.cmpe277.weather.DataModel.CityDB;
 import com.sjsu.cmpe277.weather.DataModel.JsonParser;
 import com.sjsu.cmpe277.weather.DataModel.JsonParserForecast;
 import com.sjsu.cmpe277.weather.DataModel.URLConnector;
 import com.sjsu.cmpe277.weather.R;
 
-import org.apache.log4j.Logger;
 import org.json.JSONException;
 
 import java.text.DateFormat;
@@ -34,15 +33,19 @@ import java.util.TimeZone;
  */
 
 public class CityViewActivity extends AppCompatActivity {
-    Logger logger = Logger.getLogger(CityViewActivity.class);
-
-//    ListView day5Forcast;
+    ArrayAdapter listViewAdapter = null;
+    ArrayAdapter gridViewForecastAdapter = null;
+    List<String> todayForecastInfos = new ArrayList<>();
+    List<String> forecastInfos = new ArrayList<>();
 
     TextView cityNameTxtView;
     TextView curStatusTxtView;
     TextView curTempTxtView;
     TextView curDateTxtView;
     TextView curHighLowTxtView;
+
+    GridView todayForecastGridView;
+    GridView forecastGridView;
 
 
     private float x1,x2;
@@ -55,7 +58,6 @@ public class CityViewActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_cityview);
-
 
         String cityName = getIntent().getStringExtra(AppConstants.LIST_VIEW_CityName);
         currentCity = getIntent().getStringExtra(AppConstants.LIST_VIEW_CurrentCityName);
@@ -70,38 +72,22 @@ public class CityViewActivity extends AppCompatActivity {
         curDateTxtView = (TextView) findViewById(R.id.txtViewCurDate);
         curHighLowTxtView = (TextView) findViewById(R.id.txtViewCurHighLow);
 
+        todayForecastGridView = (GridView) findViewById(R.id.gridViewTodayForecast);
+
+        forecastGridView = (GridView) findViewById(R.id.gridView5dayForecast);
+
         new FetchCurWeatherTask(cityName, this).execute();
+        new FetchTodayForecastTask(cityName, this).execute();
+        new ForeCast5DayTask(cityName, this).execute();
 
         ActionBar actionBar = this.getSupportActionBar();
         if(actionBar != null) {
             actionBar.setDisplayHomeAsUpEnabled(true);
         }
-
-
-
-
-/***************************************************************************/
-
-
-
-//        day5Forcast = (ListView) findViewById(R.id.listView5dayForecast);
-//
-//        List<String> cityInfo = weatherConn.getCityInfo();
-//
-//        ArrayAdapter<String> listViewAdapter = new ArrayAdapter<String>(
-//                this,
-//                android.R.layout.simple_list_item_1,
-//                cityInfo
-//        );
-//        day5Forcast.setAdapter(listViewAdapter);
-
-/***************************************************************************/
-
     }
 
 
-
-    private class FetchCurWeatherTask extends AsyncTask<String, Void, String[]> {
+    private class FetchCurWeatherTask extends AsyncTask<String, Void, String> {
 
         private final Context Asyntaskcontext;
         String cityName;
@@ -112,57 +98,31 @@ public class CityViewActivity extends AppCompatActivity {
         }
 
         @Override
-        protected String[] doInBackground(String... params) {
+        protected String doInBackground(String... params) {
             URLConnector weatherConn = new URLConnector(AppConstants.CUR_WEATHER_URL_BASE);
-            URLConnector weatherForecastConn = new URLConnector(AppConstants.FORECAST_WEATHER_URL_BASE);
+            String curWeatherInfo = weatherConn.getResponse(cityName);
 
-            String[] curANDforecastWeathers = new String[2];
-            curANDforecastWeathers[0] = weatherConn.getResponse(cityName);
-            curANDforecastWeathers[1] = weatherForecastConn.getResponse(cityName);
-
-            return curANDforecastWeathers;
+            return curWeatherInfo;
         }
 
         @Override
-        protected void onPostExecute(String[] curANDforecastWeathers) {
+        protected void onPostExecute(String curWeatherInfo) {
             try {
-
-                //For today
-                JsonParser jsonParser = new JsonParser(curANDforecastWeathers[0], Asyntaskcontext);
+                JsonParser jsonParser = new JsonParser(curWeatherInfo, Asyntaskcontext);
                 String curTemp = jsonParser.getTemp(AppConstants.CURRENT);
                 curTempTxtView.setText(curTemp);
 
                 String curStatus = jsonParser.getCurStatus();
                 curStatusTxtView.setText(curStatus);
 
-                // this will set today's date.
                 String timeZoneURLParaPart = jsonParser.getTimeZoneURLParaPart();
                 new FetchTodayDateTask(timeZoneURLParaPart, jsonParser.getTimeStamp(), Asyntaskcontext).execute();
 
                 String curTempHighLow = jsonParser.getTemp(AppConstants.HIGH) + "  " + jsonParser.getTemp(AppConstants.LOW);
                 curHighLowTxtView.setText(curTempHighLow);
 
-
-                //For forecast
-                JsonParserForecast jsonParserForecast = new JsonParserForecast(curANDforecastWeathers[1], Asyntaskcontext);
-                String[][] info = jsonParserForecast.getForecast5dayInfo();
-
-                //txtView1stDay
-                //txtView1stStatus
-                //txtView1stNoon
-                //txtView2ndDay
-                //txtView2ndStatus
-                //txtView2ndNoon
-                //txtView3rdDay
-                //txtView3rdStatus
-                //txtView3rdNoon
-                //txtView4thDay
-                //txtView4thStatus
-                //
-
-
             } catch (JSONException e) {
-                logger.error("Exception from onPostExecute. ", e);
+                Log.i("Exception", "Exception from onPostExecute(String curWeatherInfo). " + e);
             }
 
         }
@@ -199,7 +159,6 @@ public class CityViewActivity extends AppCompatActivity {
                 else
                 {
                     // consider as something else - a screen tap for example
-
                 }
                 break;
         }
@@ -213,6 +172,82 @@ public class CityViewActivity extends AppCompatActivity {
             intent.putStringArrayListExtra(AppConstants.LIST_VIEW_Array, (ArrayList<String>) cities);
             intent.putExtra(AppConstants.LIST_VIEW_CurrentCityName, currentCity);
             startActivity(intent);
+        }
+    }
+
+    private class ForeCast5DayTask extends AsyncTask<String, Void, String> {
+        String cityName;
+        Context context;
+
+        ForeCast5DayTask(String cityName, Context context) {
+            this.cityName = cityName;
+            this.context = context;
+        }
+
+        @Override
+        protected String doInBackground(String... params) {
+            URLConnector weatherForecastConn = new URLConnector(AppConstants.FORECAST_WEATHER_URL_BASE);
+            String forecastInfo = weatherForecastConn.getResponse(cityName);
+
+            return forecastInfo;
+        }
+
+        @Override
+        protected void onPostExecute(String forecastInfo) {
+            try {
+                JsonParserForecast jsonParserForecast = new JsonParserForecast(forecastInfo, context);
+                forecastInfos = jsonParserForecast.getForecast5dayInfo();
+
+                listViewAdapter = new ArrayAdapter<String> (
+                        context,
+                        android.R.layout.simple_list_item_1,
+                        forecastInfos
+                );
+
+                forecastGridView.setAdapter(listViewAdapter);
+
+            } catch (JSONException e) {
+                e.printStackTrace();
+            }
+
+        }
+    }
+
+    private class FetchTodayForecastTask extends AsyncTask<String, Void, String> {
+        String cityName;
+        Context context;
+
+        FetchTodayForecastTask(String cityName, Context context) {
+            this.cityName = cityName;
+            this.context = context;
+        }
+
+        @Override
+        protected String doInBackground(String... params) {
+            URLConnector weatherForecastConn = new URLConnector(AppConstants.FORECAST_WEATHER_URL_BASE);
+            String forecastInfo = weatherForecastConn.getResponse(cityName);
+
+            return forecastInfo;
+        }
+
+        @Override
+        protected void onPostExecute(String forecastInfo) {
+            try {
+                JsonParserForecast jsonParserForecast = new JsonParserForecast(forecastInfo, context);
+                todayForecastInfos = jsonParserForecast.getTodayForecastInfo();
+                Log.i("$$&&", todayForecastInfos.toString());
+
+                gridViewForecastAdapter = new ArrayAdapter<String> (
+                    context,
+                    android.R.layout.simple_list_item_1,
+                    todayForecastInfos
+                );
+
+                todayForecastGridView.setAdapter(gridViewForecastAdapter);
+
+            } catch (JSONException e) {
+                e.printStackTrace();
+            }
         }
     }
 
@@ -240,7 +275,6 @@ public class CityViewActivity extends AppCompatActivity {
 
         @Override
         protected void onPostExecute(String[] timezoneANDtimestamp) {
-
             String timeZoneId = timezoneANDtimestamp[0];
             String timestamp = timezoneANDtimestamp[1];
             long todayEpoch = Long.valueOf(timestamp);
@@ -255,6 +289,5 @@ public class CityViewActivity extends AppCompatActivity {
             curDateTxtView.setText(todayDate);
 
         }
-
     }
 }
