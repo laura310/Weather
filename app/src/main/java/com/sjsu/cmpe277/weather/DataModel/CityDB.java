@@ -56,7 +56,7 @@ public class CityDB extends SQLiteOpenHelper {
 
     public Cursor getData(String name) {
         SQLiteDatabase db = this.getReadableDatabase();
-        String selectNameFromTable = "select * from " +  CITY_TABLE_NAME+ " where " + CITY_COLUMN_NAME +"="+name;
+        String selectNameFromTable = "select * from " +  CITY_TABLE_NAME+ " where " + CITY_COLUMN_NAME + "='" + name + "'";
         Cursor res =  db.rawQuery(selectNameFromTable, null );
         return res;
     }
