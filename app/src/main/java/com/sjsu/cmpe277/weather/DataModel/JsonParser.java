@@ -116,7 +116,10 @@ public class JsonParser {
 
         Date date = new Date(todayEpoch * 1000L);
         DateFormat format = new SimpleDateFormat("EEE, MMM d, HH-MM, y");
-        format.setTimeZone(TimeZone.getTimeZone(timeZoneId));
+//        format.setTimeZone(TimeZone.getTimeZone(timeZoneId));
+        format.setTimeZone(TimeZone.getTimeZone("America/Los_Angeles"));
+
+
         String todayDate = format.format(date);
 
         return todayDate;

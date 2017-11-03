@@ -13,4 +13,16 @@ public class City {
         this.lat = lat;
         this.lon = lon;
     }
+
+    public String getName() {
+        return Name;
+    }
+
+    public String getLat() {
+        return lat;
+    }
+
+    public String getLon() {
+        return lon;
+    }
 }

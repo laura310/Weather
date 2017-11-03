@@ -35,4 +35,6 @@ public class AppConstants {
     public static final String HIGH = "H";
     public static final String LOW = "L";
     public static final String CUR_COORD = "coord";
+
+    
 }

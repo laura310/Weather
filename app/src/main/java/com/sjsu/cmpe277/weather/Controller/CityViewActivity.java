@@ -14,12 +14,15 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.sjsu.cmpe277.weather.DataModel.AppConstants;
+import com.sjsu.cmpe277.weather.DataModel.City;
+import com.sjsu.cmpe277.weather.DataModel.CityDB;
 import com.sjsu.cmpe277.weather.DataModel.JsonParser;
 import com.sjsu.cmpe277.weather.DataModel.JsonParserForecast;
 import com.sjsu.cmpe277.weather.DataModel.URLConnector;
 import com.sjsu.cmpe277.weather.R;
 
 import org.json.JSONException;
+import org.json.JSONObject;
 
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
@@ -65,17 +68,14 @@ public class CityViewActivity extends AppCompatActivity {
         cities = getIntent().getStringArrayListExtra(AppConstants.LIST_VIEW_Array);
 
         cityNameTxtView = (TextView) findViewById(R.id.txtViewCityName);
-        cityNameTxtView.setText(cityName);
-
-        curTempTxtView = (TextView) findViewById(R.id.txtViewCurTemp);
         curStatusTxtView = (TextView) findViewById(R.id.txtViewWeatherStatus);
+        curTempTxtView = (TextView) findViewById(R.id.txtViewCurTemp);
         curDateTxtView = (TextView) findViewById(R.id.txtViewCurDate);
         curHighLowTxtView = (TextView) findViewById(R.id.txtViewCurHighLow);
-
         todayForecastGridView = (GridView) findViewById(R.id.gridViewTodayForecast);
-
         forecastGridView = (GridView) findViewById(R.id.gridView5dayForecast);
 
+        cityNameTxtView.setText(cityName);
         new FetchCurWeatherTask(cityName, this).execute();
         new FetchTodayForecastTask(cityName, this).execute();
         new ForeCast5DayTask(cityName, this).execute();
@@ -89,12 +89,12 @@ public class CityViewActivity extends AppCompatActivity {
 
     private class FetchCurWeatherTask extends AsyncTask<String, Void, String> {
 
-        private final Context Asyntaskcontext;
+        private final Context context;
         String cityName;
 
         FetchCurWeatherTask(String cityName, Context context) {
             this.cityName = cityName;
-            Asyntaskcontext = context;
+            this.context = context;
         }
 
         @Override
@@ -108,15 +108,30 @@ public class CityViewActivity extends AppCompatActivity {
         @Override
         protected void onPostExecute(String curWeatherInfo) {
             try {
-                JsonParser jsonParser = new JsonParser(curWeatherInfo, Asyntaskcontext);
-                String curTemp = jsonParser.getTemp(AppConstants.CURRENT);
-                curTempTxtView.setText(curTemp);
+                JsonParser jsonParser = new JsonParser(curWeatherInfo, context);
 
                 String curStatus = jsonParser.getCurStatus();
                 curStatusTxtView.setText(curStatus);
 
-                String timeZoneURLParaPart = jsonParser.getTimeZoneURLParaPart();
-                new FetchTodayDateTask(timeZoneURLParaPart, jsonParser.getTimeStamp(), Asyntaskcontext).execute();
+                String curTemp = jsonParser.getTemp(AppConstants.CURRENT);
+                curTempTxtView.setText(curTemp);
+
+                // "38.908133,-77.047119&timestamp=1458000000"
+                // TODO Directly get lat and lon after DB modification
+                String lat = "";
+                String lon = "";
+                CityDB cityDB = new CityDB(context);
+                List<City> cities = cityDB.getAllCityObject();
+                for(City city : cities) {
+                    if(city.getName().equals(cityName)) {
+                        lat = city.getLat();
+                        lon = city.getLon();
+                        break;
+                    }
+                }
+
+                String timeZoneURLParaPart = lat + "," + lon + "&timestamp=" + jsonParser.getTimeStamp();
+                new FetchTodayDateTask(timeZoneURLParaPart, jsonParser.getTimeStamp(), context).execute();
 
                 String curTempHighLow = jsonParser.getTemp(AppConstants.HIGH) + "  " + jsonParser.getTemp(AppConstants.LOW);
                 curHighLowTxtView.setText(curTempHighLow);
@@ -235,7 +250,6 @@ public class CityViewActivity extends AppCompatActivity {
             try {
                 JsonParserForecast jsonParserForecast = new JsonParserForecast(forecastInfo, context);
                 todayForecastInfos = jsonParserForecast.getTodayForecastInfo();
-                Log.i("$$&&", todayForecastInfos.toString());
 
                 gridViewForecastAdapter = new ArrayAdapter<String> (
                     context,
@@ -265,11 +279,19 @@ public class CityViewActivity extends AppCompatActivity {
         @Override
         protected String[] doInBackground(String... params) {
             String url = AppConstants.GOOGLE_TIMEZONE_API_URL_BASE1 + timeZoneURLParaPart + AppConstants.GOOGLE_TIMEZONE_API_URL_BASE2;
+            Log.i("INFO", "calling google url: " + url);
             URLConnector weatherConn = new URLConnector(url);
 
             String[] timezoneANDtimestamp = new String[2];
-            timezoneANDtimestamp[0] = weatherConn.getResponse("");
-            timezoneANDtimestamp[1] = timestamp;
+            try {
+                JSONObject timezoneInfoObj = new JSONObject(weatherConn.getResponse(""));
+                timezoneANDtimestamp[0] = timezoneInfoObj.getString("timeZoneId");
+                timezoneANDtimestamp[1] = timestamp;
+
+            } catch (JSONException e) {
+                Log.e("EXCEPTION", "Exception from getting timezone." + e);
+            }
+
             return timezoneANDtimestamp;
         }
 
@@ -279,15 +301,12 @@ public class CityViewActivity extends AppCompatActivity {
             String timestamp = timezoneANDtimestamp[1];
             long todayEpoch = Long.valueOf(timestamp);
 
-
             Date date = new Date(todayEpoch * 1000L);
             DateFormat format = new SimpleDateFormat("EEE, MMM d, HH:MM, y");
-            Log.i("INFO", "todayEpoch: " + todayEpoch + "timeZoneId: " + timeZoneId + "&&&&&&&&&&&&&&");
             format.setTimeZone(TimeZone.getTimeZone(timeZoneId));
             String todayDate = format.format(date);
 
             curDateTxtView.setText(todayDate);
-
         }
     }
 }
