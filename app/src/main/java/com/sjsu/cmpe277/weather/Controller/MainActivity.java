@@ -43,6 +43,7 @@ import com.sjsu.cmpe277.weather.R;
 
 import org.apache.log4j.chainsaw.Main;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
 import java.util.Set;
@@ -140,6 +141,8 @@ public class MainActivity extends AppCompatActivity {
                 String cityName = (String) listView.getItemAtPosition(position);
                 Intent intent = new Intent(MainActivity.this, CityViewActivity.class);
                 intent.putExtra(AppConstants.LIST_VIEW_CityName, cityName);
+                intent.putExtra(AppConstants.LIST_VIEW_Position, position);
+                intent.putStringArrayListExtra(AppConstants.LIST_VIEW_Array, (ArrayList<String>) cities);
                 intent.putExtra(AppConstants.LIST_VIEW_CurrentCityName, currentCity);
                 startActivity(intent);
             }
@@ -259,7 +262,7 @@ public class MainActivity extends AppCompatActivity {
 
                     listViewAdapter.add(place.getName());
                     listViewAdapter.notifyDataSetChanged();
-                    
+
                     Log.i("INFO", "Place: " + place.getName());
                 }
             } else if (resultCode == PlaceAutocomplete.RESULT_ERROR) {

@@ -1,13 +1,19 @@
 package com.sjsu.cmpe277.weather.Controller;
 
 import android.content.Context;
+import android.content.Intent;
+import android.database.sqlite.SQLiteOpenHelper;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
+import android.view.MotionEvent;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.sjsu.cmpe277.weather.DataModel.AppConstants;
+import com.sjsu.cmpe277.weather.DataModel.CityDB;
 import com.sjsu.cmpe277.weather.DataModel.JsonParser;
 import com.sjsu.cmpe277.weather.DataModel.JsonParserForecast;
 import com.sjsu.cmpe277.weather.DataModel.URLConnector;
@@ -18,7 +24,9 @@ import org.json.JSONException;
 
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
 import java.util.TimeZone;
 
 /**
@@ -36,6 +44,13 @@ public class CityViewActivity extends AppCompatActivity {
     TextView curDateTxtView;
     TextView curHighLowTxtView;
 
+
+    private float x1,x2;
+    static final int MIN_DISTANCE = 150;
+    int position;
+    List<String> cities;
+    String currentCity;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -43,6 +58,10 @@ public class CityViewActivity extends AppCompatActivity {
 
 
         String cityName = getIntent().getStringExtra(AppConstants.LIST_VIEW_CityName);
+        currentCity = getIntent().getStringExtra(AppConstants.LIST_VIEW_CurrentCityName);
+        position = getIntent().getIntExtra(AppConstants.LIST_VIEW_Position, 0);
+        cities = getIntent().getStringArrayListExtra(AppConstants.LIST_VIEW_Array);
+
         cityNameTxtView = (TextView) findViewById(R.id.txtViewCityName);
         cityNameTxtView.setText(cityName);
 
@@ -53,6 +72,10 @@ public class CityViewActivity extends AppCompatActivity {
 
         new FetchCurWeatherTask(cityName, this).execute();
 
+        ActionBar actionBar = this.getSupportActionBar();
+        if(actionBar != null) {
+            actionBar.setDisplayHomeAsUpEnabled(true);
+        }
 
 
 
@@ -75,6 +98,7 @@ public class CityViewActivity extends AppCompatActivity {
 /***************************************************************************/
 
     }
+
 
 
     private class FetchCurWeatherTask extends AsyncTask<String, Void, String[]> {
@@ -151,7 +175,46 @@ public class CityViewActivity extends AppCompatActivity {
 
     }
 
+    @Override
+    public boolean onTouchEvent(MotionEvent event)
+    {
+        switch(event.getAction())
+        {
+            case MotionEvent.ACTION_DOWN:
+                x1 = event.getX();
+                break;
+            case MotionEvent.ACTION_UP:
+                x2 = event.getX();
+                float deltaX = x2 - x1;
+                if (Math.abs(deltaX) > MIN_DISTANCE)
+                {
+                    if (deltaX > 0) {
+                        toSwipe(position - 1);
+                        Toast.makeText(this, "left2right swipe", Toast.LENGTH_SHORT).show();
+                    } else {
+                        toSwipe(position + 1);
+                        Toast.makeText(this, "right2left swipe", Toast.LENGTH_SHORT).show();
+                    }
+                }
+                else
+                {
+                    // consider as something else - a screen tap for example
 
+                }
+                break;
+        }
+        return super.onTouchEvent(event);
+    }
+    private void toSwipe(int current){
+        if (current < cities.size() && current >= 0) {
+            Intent intent = new Intent(CityViewActivity.this, CityViewActivity.class);
+            intent.putExtra(AppConstants.LIST_VIEW_CityName, cities.get(current));
+            intent.putExtra(AppConstants.LIST_VIEW_Position, current);
+            intent.putStringArrayListExtra(AppConstants.LIST_VIEW_Array, (ArrayList<String>) cities);
+            intent.putExtra(AppConstants.LIST_VIEW_CurrentCityName, currentCity);
+            startActivity(intent);
+        }
+    }
 
     private class FetchTodayDateTask extends AsyncTask<String, Void, String[]> {
         String timeZoneURLParaPart;
@@ -192,5 +255,6 @@ public class CityViewActivity extends AppCompatActivity {
             curDateTxtView.setText(todayDate);
 
         }
+
     }
 }

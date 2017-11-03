@@ -22,7 +22,9 @@ public class AppConstants {
 
     //For MainActivity and CityViewActivity
     public static final String LIST_VIEW_CityName = "CityName";
+    public static final String LIST_VIEW_Position = "Position";
     public static final String LIST_VIEW_CurrentCityName = "CurrentCityName";
+    public static final String LIST_VIEW_Array = "Arrays";
 
     // for current weather api
     public static final String CUR_MAIN = "main";
