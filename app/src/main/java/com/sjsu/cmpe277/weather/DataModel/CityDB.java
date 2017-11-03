@@ -22,6 +22,8 @@ public class CityDB extends SQLiteOpenHelper {
     public static final String CITY_TABLE_NAME = "CityNames";
 
     public static final String CITY_COLUMN_NAME = "name";
+    public static final String CITY_COLUMN_Lat = "lat";
+    public static final String CITY_COLUMN_Lon = "lon";
 
     public CityDB(Context context) {
         super(context, DATABASE_NAME , null, 1);
@@ -30,7 +32,7 @@ public class CityDB extends SQLiteOpenHelper {
     @Override
     public void onCreate(SQLiteDatabase db) {
         // TODO Auto-generated method stub
-        String createTable = "CREATE TABLE " + CITY_TABLE_NAME + "(" + CITY_COLUMN_NAME + " text primary key )";
+        String createTable = "CREATE TABLE " + CITY_TABLE_NAME + " ( " + CITY_COLUMN_NAME + " text primary key, "+ CITY_COLUMN_Lat +" text, " + CITY_COLUMN_Lon + " text )";
         db.execSQL(createTable);
     }
 
@@ -42,10 +44,12 @@ public class CityDB extends SQLiteOpenHelper {
         onCreate(db);
     }
 
-    public boolean insertCity (String name) {
+    public boolean insertCity (String name, String lat, String lon) {
         SQLiteDatabase db = this.getWritableDatabase();
         ContentValues contentValues = new ContentValues();
         contentValues.put(CITY_COLUMN_NAME, name);
+        contentValues.put(CITY_COLUMN_Lat, lat);
+        contentValues.put(CITY_COLUMN_Lon, lon);
         db.insert(CITY_TABLE_NAME, null, contentValues);
         return true;
     }

@@ -108,7 +108,7 @@ public class MainActivity extends AppCompatActivity {
                         if (cities.contains(currentCity)) {
                             Toast.makeText(MainActivity.this, "Current location has been added",Toast.LENGTH_LONG).show();
                         } else {
-                            cityDB.insertCity(currentCity);
+                            cityDB.insertCity(currentCity, String.valueOf(location.getLatitude()), String.valueOf(location.getLongitude()));
                             listViewAdapter.add(currentCity);
                             listViewAdapter.notifyDataSetChanged();
                         }
@@ -204,7 +204,14 @@ public class MainActivity extends AppCompatActivity {
                             try{
                                 currentCity = hereLocation(location.getLatitude(), location.getLongitude());
                                 Log.i("Info", currentCity);
-                                cityDB.insertCity(currentCity);
+                                List<String> cities = cityDB.getAllCities();
+                                if (cities.contains(currentCity)) {
+                                    Toast.makeText(MainActivity.this, "Current location has been added",Toast.LENGTH_LONG).show();
+                                } else {
+                                    cityDB.insertCity(currentCity, String.valueOf(location.getLatitude()), String.valueOf(location.getLongitude()));
+                                    listViewAdapter.add(currentCity);
+                                    listViewAdapter.notifyDataSetChanged();
+                                }
                             } catch(Exception e){
                                 Toast.makeText(MainActivity.this, "Location Not Available",Toast.LENGTH_LONG).show();
                                 Log.e("error", e.toString());
@@ -244,12 +251,17 @@ public class MainActivity extends AppCompatActivity {
                 if (cities.contains(place.getName())) {
                    Toast.makeText(MainActivity.this, "The cities you entered has been added before", Toast.LENGTH_LONG).show();
                     Log.i("Info", "places added");
+                } else {
+                    Log.i("Info", "lat is " + String.valueOf(place.getLatLng().latitude));
+
+                    cityDB.insertCity(place.getName().toString(), String.valueOf(place.getLatLng().latitude), String.valueOf(place.getLatLng().longitude));
+                    cities = cityDB.getAllCities();
+
+                    listViewAdapter.add(place.getName());
+                    listViewAdapter.notifyDataSetChanged();
+                    
+                    Log.i("INFO", "Place: " + place.getName());
                 }
-               // Log.i("Info", place.getLatLng().toString());
-                cityDB.insertCity(place.getName().toString());
-                Intent intent = new Intent(getApplicationContext(), MainActivity.class);
-                startActivity(intent);
-                Log.i("INFO", "Place: " + place.getName());
             } else if (resultCode == PlaceAutocomplete.RESULT_ERROR) {
                 Status status = PlaceAutocomplete.getStatus(this, data);
                 // TODO: Handle the error.
