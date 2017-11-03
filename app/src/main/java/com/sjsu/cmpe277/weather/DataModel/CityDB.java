@@ -60,6 +60,23 @@ public class CityDB extends SQLiteOpenHelper {
         Cursor res =  db.rawQuery(selectNameFromTable, null );
         return res;
     }
+    public String getLat(String name) {
+        Cursor res = getData(name);
+        return res.getString(res.getColumnIndex(CITY_COLUMN_Lat));
+    }
+    public String getLon(String name) {
+        Cursor res = getData(name);
+        return res.getString(res.getColumnIndex(CITY_COLUMN_Lon));
+    }
+    public City getCityData(String name) {
+        SQLiteDatabase db = this.getReadableDatabase();
+        City city = null;
+        String selectNameFromTable = "select * from " +  CITY_TABLE_NAME+ " where " + CITY_COLUMN_NAME +"="+name;
+        Cursor res =  db.rawQuery(selectNameFromTable, null );
+        res.moveToFirst();
+        city = new City(res.getString(res.getColumnIndex(CITY_COLUMN_NAME)), res.getString(res.getColumnIndex(CITY_COLUMN_Lat)),res.getString(res.getColumnIndex(CITY_COLUMN_Lon)));
+        return city;
+    }
 
     public Integer deleteCity (String name) {
         SQLiteDatabase db = this.getWritableDatabase();
@@ -81,5 +98,20 @@ public class CityDB extends SQLiteOpenHelper {
             res.moveToNext();
         }
         return set;
+    }
+    public List<City> getAllCityObject() {
+        List<City> ret = new ArrayList<>();
+
+        SQLiteDatabase db = this.getReadableDatabase();
+        String selectAllFromTable = "select * from " + CITY_TABLE_NAME;
+        Cursor res =  db.rawQuery(selectAllFromTable, null );
+        res.moveToFirst();
+
+        while(res.isAfterLast() == false){
+            City city = new City(res.getString(res.getColumnIndex(CITY_COLUMN_NAME)), res.getString(res.getColumnIndex(CITY_COLUMN_Lat)),res.getString(res.getColumnIndex(CITY_COLUMN_Lon)));
+            ret.add(city);
+            res.moveToNext();
+        }
+        return ret;
     }
 }
