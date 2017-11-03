@@ -1,6 +1,5 @@
 package com.sjsu.cmpe277.weather.Controller;
 
-import android.app.Activity;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
@@ -17,7 +16,6 @@ import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.ListView;
-import android.widget.AdapterView.OnItemClickListener;
 import android.widget.Toast;
 
 import com.google.android.gms.common.GooglePlayServicesNotAvailableException;
@@ -26,14 +24,11 @@ import com.google.android.gms.common.api.Status;
 import com.google.android.gms.location.places.AutocompleteFilter;
 import com.google.android.gms.location.places.Place;
 import com.google.android.gms.location.places.ui.PlaceAutocomplete;
+import com.sjsu.cmpe277.weather.DataModel.AppConstants;
 import com.sjsu.cmpe277.weather.DataModel.CityDB;
-import com.sjsu.cmpe277.weather.DataModel.WeatherConstants;
 import com.sjsu.cmpe277.weather.R;
 
-import org.apache.log4j.chainsaw.Main;
-
 import java.util.List;
-import java.util.Set;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -87,7 +82,7 @@ public class MainActivity extends AppCompatActivity {
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
                 String cityName = (String) listView.getItemAtPosition(position);
                 Intent intent = new Intent(MainActivity.this, CityViewActivity.class);
-                intent.putExtra(WeatherConstants.LIST_VIEW_ITEM, cityName);
+                intent.putExtra(AppConstants.LIST_VIEW_CityName, cityName);
                 startActivity(intent);
             }
 

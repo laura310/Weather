@@ -1,6 +1,6 @@
 package com.sjsu.cmpe277.weather;
 
-import com.sjsu.cmpe277.weather.DataModel.OpenWeatherMapConnector;
+import com.sjsu.cmpe277.weather.DataModel.URLConnector;
 import org.junit.Test;
 
 /**
@@ -8,11 +8,11 @@ import org.junit.Test;
  */
 
 public class TestOpenWeatherMapConnector {
-    OpenWeatherMapConnector connector = new OpenWeatherMapConnector();
+    URLConnector connector = new URLConnector();
 
     @Test
     public void testGetCurWeatByCityName() {
-        connector.getCurWeatByCityName("London");
+        connector.getResponse("London");
 
     }
 }
