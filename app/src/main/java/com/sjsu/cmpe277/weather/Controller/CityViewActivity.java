@@ -76,6 +76,7 @@ public class CityViewActivity extends AppCompatActivity {
         forecastGridView = (GridView) findViewById(R.id.gridView5dayForecast);
 
         cityNameTxtView.setText(cityName);
+        Log.i("@@@@", "cityNameTxtView.setText(cityName): cityname: " + cityName);
         new FetchCurWeatherTask(cityName, this).execute();
         new FetchTodayForecastTask(cityName, this).execute();
         new Fetch5DayForeCastTask(cityName, this).execute();
@@ -88,7 +89,6 @@ public class CityViewActivity extends AppCompatActivity {
 
 
     private class FetchCurWeatherTask extends AsyncTask<String, Void, String> {
-
         private final Context context;
         String cityName;
 
@@ -131,7 +131,7 @@ public class CityViewActivity extends AppCompatActivity {
                 }
 
                 String timeZoneURLParaPart = lat + "," + lon + "&timestamp=" + jsonParser.getTimeStamp();
-                new FetchTodayDateTask(timeZoneURLParaPart, jsonParser.getTimeStamp(), context).execute();
+                new FetchTodayDateTask(timeZoneURLParaPart, jsonParser.getTimeStampLong(), context).execute();
 
                 String curTempHighLow = jsonParser.getTemp(AppConstants.HIGH) + "  " + jsonParser.getTemp(AppConstants.LOW);
                 curHighLowTxtView.setText(curTempHighLow);
@@ -222,7 +222,7 @@ public class CityViewActivity extends AppCompatActivity {
                 forecastGridView.setAdapter(listViewAdapter);
 
             } catch (JSONException e) {
-                e.printStackTrace();
+                Log.i("EXCEPTION", "Exception from Fetch5DayForeCastTask.onPostExecute.\n" + e);
             }
 
         }
@@ -260,50 +260,45 @@ public class CityViewActivity extends AppCompatActivity {
                 todayForecastGridView.setAdapter(gridViewForecastAdapter);
 
             } catch (JSONException e) {
-                e.printStackTrace();
+                Log.i("EXCEPTION", "Exception from FetchTodayForecastTask.onPostExecute.\n" + e);
             }
         }
     }
 
-    private class FetchTodayDateTask extends AsyncTask<String, Void, String[]> {
+    private class FetchTodayDateTask extends AsyncTask<String, Void, String> {
         String timeZoneURLParaPart;
-        String timestamp;
+        long timestamp;
         Context context;
 
-        FetchTodayDateTask(String timeZoneURLParaPart, String timestamp, Context context) {
+        FetchTodayDateTask(String timeZoneURLParaPart, Long timestamp, Context context) {
             this.timeZoneURLParaPart = timeZoneURLParaPart;
             this.timestamp = timestamp;
             this.context = context;
         }
 
         @Override
-        protected String[] doInBackground(String... params) {
+        protected String doInBackground(String... params) {
             String url = AppConstants.GOOGLE_TIMEZONE_API_URL_BASE1 + timeZoneURLParaPart + AppConstants.GOOGLE_TIMEZONE_API_URL_BASE2;
-            Log.i("INFO", "calling google url: " + url);
+            Log.i("INFO", "calling google url: " + url + "\ntimeZoneURLParaPart: " + timeZoneURLParaPart);
             URLConnector weatherConn = new URLConnector(url);
+            String timezoneId = "";
 
-            String[] timezoneANDtimestamp = new String[2];
             try {
                 JSONObject timezoneInfoObj = new JSONObject(weatherConn.getResponse(""));
-                timezoneANDtimestamp[0] = timezoneInfoObj.getString("timeZoneId");
-                timezoneANDtimestamp[1] = timestamp;
+                timezoneId = timezoneInfoObj.getString("timeZoneId");
 
             } catch (JSONException e) {
-                Log.e("EXCEPTION", "Exception from getting timezone." + e);
+                Log.e("EXCEPTION", "Exception from FetchTodayDateTask.doInBackground: getting timezone when calling url: " + url + "\n"+ e);
             }
 
-            return timezoneANDtimestamp;
+            return timezoneId;
         }
 
         @Override
-        protected void onPostExecute(String[] timezoneANDtimestamp) {
-            String timeZoneId = timezoneANDtimestamp[0];
-            String timestamp = timezoneANDtimestamp[1];
-            long todayEpoch = Long.valueOf(timestamp);
-
-            Date date = new Date(todayEpoch * 1000L);
+        protected void onPostExecute(String timezoneId) {
+            Date date = new Date(timestamp * 1000L);
             DateFormat format = new SimpleDateFormat("EEE, MMM d, HH:MM, y");
-            format.setTimeZone(TimeZone.getTimeZone(timeZoneId));
+            format.setTimeZone(TimeZone.getTimeZone(timezoneId));
             String todayDate = format.format(date);
 
             curDateTxtView.setText(todayDate);

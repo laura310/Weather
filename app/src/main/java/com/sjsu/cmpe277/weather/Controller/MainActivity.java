@@ -11,6 +11,7 @@ import android.location.Criteria;
 import android.location.Geocoder;
 import android.location.Location;
 import android.location.LocationManager;
+import android.os.AsyncTask;
 import android.support.annotation.NonNull;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
@@ -38,15 +39,23 @@ import com.google.android.gms.location.places.Place;
 import com.google.android.gms.location.places.ui.PlaceAutocomplete;
 import com.sjsu.cmpe277.weather.DataModel.AppConstants;
 import com.sjsu.cmpe277.weather.DataModel.CityDB;
+import com.sjsu.cmpe277.weather.DataModel.JsonParser;
+import com.sjsu.cmpe277.weather.DataModel.URLConnector;
 import com.sjsu.cmpe277.weather.R;
 
 
 import org.apache.log4j.chainsaw.Main;
+import org.json.JSONException;
+import org.json.JSONObject;
 
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 import java.util.Locale;
 import java.util.Set;
+import java.util.TimeZone;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -121,21 +130,29 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
-        
+        new FetchCityInfosTask(cityDB, this).execute();
+
+
+        // *************************************************
         listView = (ListView) findViewById(R.id.listView);
-        cities = cityDB.getAllCities();
-        listViewAdapter = new ArrayAdapter<String>(
-                this,
-                android.R.layout.simple_list_item_1,
-                cities
-        );
-        listView.setAdapter(listViewAdapter);
+//        cities = cityDB.getAllCities();
+//        listViewAdapter = new ArrayAdapter<String>(
+//                this,
+//                android.R.layout.simple_list_item_1,
+//                cities
+//        );
+//        listView.setAdapter(listViewAdapter);
+        // *************************************************
 
         listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
 
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                String cityName = (String) listView.getItemAtPosition(position);
+//                String cityName = (String) listView.getItemAtPosition(position);
+                String cityLineText = (String) listView.getItemAtPosition(position);
+                String tmp = cityLineText.substring(0, cityLineText.lastIndexOf(":"));
+                String cityName = tmp.substring(0, tmp.lastIndexOf(" "));
+
                 Intent intent = new Intent(MainActivity.this, CityViewActivity.class);
                 intent.putExtra(AppConstants.LIST_VIEW_CityName, cityName);
                 intent.putExtra(AppConstants.LIST_VIEW_Position, position);
@@ -286,6 +303,82 @@ public class MainActivity extends AppCompatActivity {
             e.printStackTrace();
         }
         return curCity;
+    }
+
+
+    private class FetchCityInfosTask extends AsyncTask<CityDB, Void, List<List<String>>> {
+        List<String> cityNames;
+        Context context;
+
+        FetchCityInfosTask(CityDB cityDB, Context context) {
+            this.cityNames = cityDB.getAllCities();
+            this.context = context;
+        }
+
+        @Override
+        protected List<List<String>> doInBackground(CityDB... params) {
+            List<List<String>> citiesJsonTxts = new ArrayList<>();
+            List<String> citiesTimes = new ArrayList<>();
+            List<String> citiesTemps = new ArrayList<>();
+            citiesJsonTxts.add(citiesTimes);
+            citiesJsonTxts.add(citiesTemps);
+
+            for(String cityName : cityDB.getAllCities()) {
+                URLConnector urlConn = new URLConnector(AppConstants.CUR_WEATHER_URL_BASE);
+
+                String lat = cityDB.getCityData(cityName).getLat();
+                String lon = cityDB.getCityData(cityName).getLon();
+                JsonParser jsonParser = null;
+                try {
+                    jsonParser = new JsonParser(urlConn.getResponse(cityName), context);
+                    String timeZoneURLParaPart = lat + "," + lon + "&timestamp=" + jsonParser.getTimeStamp();
+                    URLConnector timezoneUrlConn = new URLConnector(AppConstants.GOOGLE_TIMEZONE_API_URL_BASE1 + timeZoneURLParaPart +
+                                                                    AppConstants.GOOGLE_TIMEZONE_API_URL_BASE2);
+
+                    citiesTimes.add(timezoneUrlConn.getResponse(""));
+                    citiesTemps.add(urlConn.getResponse(cityName));
+
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                }
+            }
+
+            return citiesJsonTxts;
+        }
+
+        @Override
+        protected void onPostExecute(List<List<String>> citiesJsonTxts) {
+            List<String> citiesInfos = new ArrayList<>();
+            List<String> citiesTimes = citiesJsonTxts.get(0);
+            List<String> citiesTemps = citiesJsonTxts.get(1);
+
+            try {
+                for(int i = 0; i < citiesTimes.size(); i++) {
+                    String cityName = cityNames.get(i);
+
+                    JsonParser jsonParser = new JsonParser(citiesTemps.get(i), context);
+                    String cur_temp = jsonParser.getTemp(AppConstants.CURRENT);
+
+                    String timezoneId = new JSONObject(citiesTimes.get(i)).getString("timeZoneId");
+                    long localTimeEpoch = jsonParser.getTimeStampLong();
+                    Date date = new Date(localTimeEpoch * 1000L);
+                    DateFormat format = new SimpleDateFormat("HH:MM");
+                    format.setTimeZone(TimeZone.getTimeZone(timezoneId));
+                    String localTime = format.format(date);
+
+                    citiesInfos.add(cityName + "  " + localTime + "  " + cur_temp);
+                }
+            } catch (JSONException e) {
+                e.printStackTrace();
+            }
+
+            listViewAdapter = new ArrayAdapter<String>(
+                    context,
+                    android.R.layout.simple_list_item_1,
+                    citiesInfos
+            );
+            listView.setAdapter(listViewAdapter);
+        }
     }
 
 }

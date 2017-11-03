@@ -40,22 +40,21 @@ public class JsonParser {
         String temp = "";
 
         SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(context);
-
         JSONObject mainObject = jsonObject.getJSONObject(AppConstants.CUR_MAIN);
-        long curTempK = mainObject.getLong(AppConstants.CUR_MAIN_TEMP);
-        long lowTempK = mainObject.getLong(AppConstants.CUR_MAIN_LOW);
-        long highTempK = mainObject.getLong(AppConstants.CUR_MAIN_High);
 
         switch (level) {
             case AppConstants.CURRENT:
+                long curTempK = mainObject.getLong(AppConstants.CUR_MAIN_TEMP);
                 temp =  "" + Util.convertTemperature(curTempK, preferences);
                 break;
 
             case AppConstants.LOW:
+                long lowTempK = mainObject.getLong(AppConstants.CUR_MAIN_LOW);
                 temp =  "" + Util.convertTemperature(lowTempK, preferences);
                 break;
 
             case AppConstants.HIGH:
+                long highTempK = mainObject.getLong(AppConstants.CUR_MAIN_High);
                 temp = "" + Util.convertTemperature(highTempK, preferences);
                 break;
 
@@ -92,6 +91,9 @@ public class JsonParser {
 
     public String getTimeStamp() throws JSONException {
         return "" +  jsonObject.getLong(AppConstants.CUR_DT);
+    }
+    public Long getTimeStampLong() throws JSONException {
+        return jsonObject.getLong(AppConstants.CUR_DT);
     }
 
 
