@@ -71,7 +71,7 @@ public class CityDB extends SQLiteOpenHelper {
     public City getCityData(String name) {
         SQLiteDatabase db = this.getReadableDatabase();
         City city = null;
-        String selectNameFromTable = "select * from " +  CITY_TABLE_NAME+ " where " + CITY_COLUMN_NAME +"="+name;
+        String selectNameFromTable = "select * from " +  CITY_TABLE_NAME+ " where " + CITY_COLUMN_NAME + "='"+ name + "'";
         Cursor res =  db.rawQuery(selectNameFromTable, null );
         res.moveToFirst();
         city = new City(res.getString(res.getColumnIndex(CITY_COLUMN_NAME)), res.getString(res.getColumnIndex(CITY_COLUMN_Lat)),res.getString(res.getColumnIndex(CITY_COLUMN_Lon)));
