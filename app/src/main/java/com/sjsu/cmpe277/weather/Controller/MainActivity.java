@@ -25,6 +25,7 @@ import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.GridView;
+import android.widget.ListView;
 import android.widget.Toast;
 
 import com.google.android.gms.common.GooglePlayServicesNotAvailableException;
@@ -35,7 +36,9 @@ import com.google.android.gms.location.places.Place;
 import com.google.android.gms.location.places.ui.PlaceAutocomplete;
 import com.sjsu.cmpe277.weather.DataModel.AppConstants;
 import com.sjsu.cmpe277.weather.DataModel.CityDB;
+import com.sjsu.cmpe277.weather.DataModel.CustomListAdapter;
 import com.sjsu.cmpe277.weather.DataModel.JsonParser;
+import com.sjsu.cmpe277.weather.DataModel.NewItem;
 import com.sjsu.cmpe277.weather.DataModel.URLConnector;
 import com.sjsu.cmpe277.weather.R;
 
@@ -55,14 +58,17 @@ public class MainActivity extends AppCompatActivity {
 
     Button addButton;
     Button addCurrentButton;
-    GridView cityListGridView;
+    ListView cityListGridView;
+    ListView listView;
     CityDB cityDB;
     final int PLACE_AUTOCOMPLETE_REQUEST_CODE = 1;
     final int MY_PERMISSION_REQUEST_CODE = 1;
-    ArrayAdapter gridViewAdapter = null;
+    CustomListAdapter gridViewAdapter = null;
     LocationManager locationManager;
     String currentCity = "";
     List<String> cities;
+
+    ArrayList<NewItem> listResults = new ArrayList<NewItem>();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -70,6 +76,8 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
 
         cityDB = new CityDB(this);
+        listView = (ListView) findViewById(R.id.custom_list);
+
 
         addButton = (Button) findViewById(R.id.addbutton);
         addButton.setOnClickListener(new View.OnClickListener() {
@@ -112,8 +120,7 @@ public class MainActivity extends AppCompatActivity {
                             Toast.makeText(MainActivity.this, "Current location has been added",Toast.LENGTH_LONG).show();
                         } else {
                             cityDB.insertCity(currentCity, String.valueOf(location.getLatitude()), String.valueOf(location.getLongitude()));
-                            gridViewAdapter.add(currentCity);
-                            gridViewAdapter.notifyDataSetChanged();
+
                         }
                     } catch(Exception e){
                         Toast.makeText(MainActivity.this, "Location Not Available",Toast.LENGTH_LONG).show();
@@ -122,15 +129,17 @@ public class MainActivity extends AppCompatActivity {
                 }
             }
         });
-
         new FetchCityInfosTask(cityDB, this).execute();
 
-        cityListGridView = (GridView) findViewById(R.id.gridViewCityList);
+        cityListGridView = (ListView) findViewById(R.id.custom_list);
         cityListGridView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
 
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                String cityName = (String) cityListGridView.getItemAtPosition(position);
+
+                NewItem cityObject = (NewItem) cityListGridView.getItemAtPosition(position);
+                String cityName = cityObject.getCity();
+                Log.i("Info", cityName);
 
                 Intent intent = new Intent(MainActivity.this, CityViewActivity.class);
                 intent.putExtra(AppConstants.LIST_VIEW_CityName, cityName);
@@ -163,7 +172,9 @@ public class MainActivity extends AppCompatActivity {
                     public void onClick(DialogInterface dialog, int which) {
                         //do your work here
                         cityDB.deleteCity(gridViewAdapter.getItem(position).toString());
-                        gridViewAdapter.remove(gridViewAdapter.getItem(position));
+                        Log.i("Info", "remove city" + gridViewAdapter.getItem(position).toString());
+                        //Log.i("Info", "remove city" + gridViewAdapter.get);
+                        //gridViewAdapter.remove(gridViewAdapter.getItem(position));
                         gridViewAdapter.notifyDataSetChanged();
 
                         dialog.dismiss();
@@ -203,8 +214,8 @@ public class MainActivity extends AppCompatActivity {
                                     Toast.makeText(MainActivity.this, "Current location has been added",Toast.LENGTH_LONG).show();
                                 } else {
                                     cityDB.insertCity(currentCity, String.valueOf(location.getLatitude()), String.valueOf(location.getLongitude()));
-                                    gridViewAdapter.add(currentCity);
-                                    gridViewAdapter.notifyDataSetChanged();
+                                    //gridViewAdapter.add(currentCity);
+                                    //gridViewAdapter.notifyDataSetChanged();
                                 }
                             } catch(Exception e){
                                 Toast.makeText(MainActivity.this, "Location Not Available",Toast.LENGTH_LONG).show();
@@ -249,10 +260,8 @@ public class MainActivity extends AppCompatActivity {
                     Log.i("Info", "lat is " + String.valueOf(place.getLatLng().latitude));
 
                     cityDB.insertCity(place.getName().toString(), String.valueOf(place.getLatLng().latitude), String.valueOf(place.getLatLng().longitude));
-                    cities = cityDB.getAllCities();
 
-                    gridViewAdapter.add(place.getName());
-                    gridViewAdapter.notifyDataSetChanged();
+                    new FetchCityInfosTask(cityDB, this).execute();
 
                     Log.i("INFO", "Place: " + place.getName());
                 }
@@ -327,7 +336,7 @@ public class MainActivity extends AppCompatActivity {
 
         @Override
         protected void onPostExecute(List<List<String>> citiesJsonTxts) {
-            List<String> citiesInfos = new ArrayList<>();
+            ArrayList<NewItem> citiesInfos = new ArrayList<>();
             List<String> citiesTimes = citiesJsonTxts.get(0);
             List<String> citiesTemps = citiesJsonTxts.get(1);
 
@@ -346,17 +355,15 @@ public class MainActivity extends AppCompatActivity {
                     String localTime = format.format(date);
 
 
-                    citiesInfos.add(cityName);
-                    citiesInfos.add(localTime);
-                    citiesInfos.add(cur_temp);
+                    citiesInfos.add(new NewItem(cityName, cur_temp, localTime));
+
                 }
             } catch (JSONException e) {
                 e.printStackTrace();
             }
 
-            gridViewAdapter = new ArrayAdapter<String>(
+            gridViewAdapter = new CustomListAdapter (
                     context,
-                    android.R.layout.simple_list_item_1,
                     citiesInfos
             );
             cityListGridView.setAdapter(gridViewAdapter);
