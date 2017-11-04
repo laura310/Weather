@@ -67,6 +67,7 @@ public class MainActivity extends AppCompatActivity {
     LocationManager locationManager;
     String currentCity = "";
     List<String> cities;
+    ArrayList<NewItem> citiesInfos;
 
     ArrayList<NewItem> listResults = new ArrayList<NewItem>();
 
@@ -173,8 +174,7 @@ public class MainActivity extends AppCompatActivity {
                         //do your work here
                         cityDB.deleteCity(gridViewAdapter.getItem(position).toString());
                         Log.i("Info", "remove city" + gridViewAdapter.getItem(position).toString());
-                        //Log.i("Info", "remove city" + gridViewAdapter.get);
-                        //gridViewAdapter.remove(gridViewAdapter.getItem(position));
+                        citiesInfos.remove(gridViewAdapter.getItem(position));
                         gridViewAdapter.notifyDataSetChanged();
 
                         dialog.dismiss();
@@ -336,7 +336,7 @@ public class MainActivity extends AppCompatActivity {
 
         @Override
         protected void onPostExecute(List<List<String>> citiesJsonTxts) {
-            ArrayList<NewItem> citiesInfos = new ArrayList<>();
+            citiesInfos = new ArrayList<>();
             List<String> citiesTimes = citiesJsonTxts.get(0);
             List<String> citiesTemps = citiesJsonTxts.get(1);
 
