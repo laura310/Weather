@@ -18,6 +18,7 @@ import com.sjsu.cmpe277.weather.DataModel.City;
 import com.sjsu.cmpe277.weather.DataModel.CityDB;
 import com.sjsu.cmpe277.weather.DataModel.JsonParser;
 import com.sjsu.cmpe277.weather.DataModel.JsonParserForecast;
+import com.sjsu.cmpe277.weather.DataModel.TimeConverter;
 import com.sjsu.cmpe277.weather.DataModel.URLConnector;
 import com.sjsu.cmpe277.weather.R;
 
@@ -27,6 +28,7 @@ import org.json.JSONObject;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
 import java.util.TimeZone;
@@ -116,22 +118,12 @@ public class CityViewActivity extends AppCompatActivity {
                 String curTemp = jsonParser.getTemp(AppConstants.CURRENT);
                 curTempTxtView.setText(curTemp);
 
-                // "38.908133,-77.047119&timestamp=1458000000"
-                // TODO Directly get lat and lon after DB modification
-                String lat = "";
-                String lon = "";
-                CityDB cityDB = new CityDB(context);
-                List<City> cities = cityDB.getAllCityObject();
-                for(City city : cities) {
-                    if(city.getName().equals(cityName)) {
-                        lat = city.getLat();
-                        lon = city.getLon();
-                        break;
-                    }
-                }
+                City city = new CityDB(context).getCityData(cityName);
+                String lat = city.getLat();
+                String lon = city.getLon();
 
-                String timeZoneURLParaPart = lat + "," + lon + "&timestamp=" + jsonParser.getTimeStamp();
-                new FetchTodayDateTask(timeZoneURLParaPart, jsonParser.getTimeStampLong(), context).execute();
+                String timeZoneURLParaPart = lat + "," + lon + "&timestamp=" + Calendar.getInstance().getTimeInMillis()/1000;
+                new FetchTodayDateTask(timeZoneURLParaPart, context).execute();
 
                 String curTempHighLow = jsonParser.getTemp(AppConstants.HIGH) + "  " + jsonParser.getTemp(AppConstants.LOW);
                 curHighLowTxtView.setText(curTempHighLow);
@@ -141,13 +133,6 @@ public class CityViewActivity extends AppCompatActivity {
             }
 
         }
-
-        private String getDateTime(long epochTime) {
-            Date date = new Date(epochTime * 1000);
-            DateFormat format = new SimpleDateFormat("EEE, MMM d");
-            return format.format(date);
-        }
-
     }
 
     @Override
@@ -267,12 +252,10 @@ public class CityViewActivity extends AppCompatActivity {
 
     private class FetchTodayDateTask extends AsyncTask<String, Void, String> {
         String timeZoneURLParaPart;
-        long timestamp;
         Context context;
 
-        FetchTodayDateTask(String timeZoneURLParaPart, Long timestamp, Context context) {
+        FetchTodayDateTask(String timeZoneURLParaPart, Context context) {
             this.timeZoneURLParaPart = timeZoneURLParaPart;
-            this.timestamp = timestamp;
             this.context = context;
         }
 
@@ -296,10 +279,7 @@ public class CityViewActivity extends AppCompatActivity {
 
         @Override
         protected void onPostExecute(String timezoneId) {
-            Date date = new Date(timestamp * 1000L);
-            DateFormat format = new SimpleDateFormat("EEE, MMM d, HH:MM, y");
-            format.setTimeZone(TimeZone.getTimeZone(timezoneId));
-            String todayDate = format.format(date);
+            String todayDate = TimeConverter.getTimeInFormat(Calendar.getInstance().getTimeInMillis()/1000, timezoneId, "EEE, MMM d, HH:MM, y");
 
             curDateTxtView.setText(todayDate);
         }

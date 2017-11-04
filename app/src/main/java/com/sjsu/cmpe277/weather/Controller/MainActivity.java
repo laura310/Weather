@@ -39,6 +39,7 @@ import com.sjsu.cmpe277.weather.DataModel.CityDB;
 import com.sjsu.cmpe277.weather.DataModel.CustomListAdapter;
 import com.sjsu.cmpe277.weather.DataModel.JsonParser;
 import com.sjsu.cmpe277.weather.DataModel.NewItem;
+import com.sjsu.cmpe277.weather.DataModel.TimeConverter;
 import com.sjsu.cmpe277.weather.DataModel.URLConnector;
 import com.sjsu.cmpe277.weather.R;
 
@@ -49,6 +50,7 @@ import org.json.JSONObject;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
 import java.util.Locale;
@@ -67,9 +69,8 @@ public class MainActivity extends AppCompatActivity {
     LocationManager locationManager;
     String currentCity = "";
     List<String> cities;
-    ArrayList<NewItem> citiesInfos;
 
-    ArrayList<NewItem> listResults = new ArrayList<NewItem>();
+    ArrayList<NewItem> citiesInfos = new ArrayList<>();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -317,18 +318,15 @@ public class MainActivity extends AppCompatActivity {
                 String lat = cityDB.getCityData(cityName).getLat();
                 String lon = cityDB.getCityData(cityName).getLon();
                 JsonParser jsonParser = null;
-                try {
-                    jsonParser = new JsonParser(urlConn.getResponse(cityName), context);
-                    String timeZoneURLParaPart = lat + "," + lon + "&timestamp=" + jsonParser.getTimeStamp();
-                    URLConnector timezoneUrlConn = new URLConnector(AppConstants.GOOGLE_TIMEZONE_API_URL_BASE1 + timeZoneURLParaPart +
-                                                                    AppConstants.GOOGLE_TIMEZONE_API_URL_BASE2);
 
-                    citiesTimes.add(timezoneUrlConn.getResponse(""));
-                    citiesTemps.add(urlConn.getResponse(cityName));
+                long timestamp = Calendar.getInstance().getTimeInMillis()/1000;
+                String timeZoneURLParaPart = lat + "," + lon + "&timestamp=" + timestamp;
 
-                } catch (JSONException e) {
-                    e.printStackTrace();
-                }
+                URLConnector timezoneUrlConn = new URLConnector(AppConstants.GOOGLE_TIMEZONE_API_URL_BASE1 + timeZoneURLParaPart +
+                                                                AppConstants.GOOGLE_TIMEZONE_API_URL_BASE2);
+
+                citiesTimes.add(timezoneUrlConn.getResponse(""));
+                citiesTemps.add(urlConn.getResponse(cityName));
             }
 
             return citiesJsonTxts;
@@ -346,13 +344,8 @@ public class MainActivity extends AppCompatActivity {
 
                     JsonParser jsonParser = new JsonParser(citiesTemps.get(i), context);
                     String cur_temp = jsonParser.getTemp(AppConstants.CURRENT);
-
                     String timezoneId = new JSONObject(citiesTimes.get(i)).getString("timeZoneId");
-                    long localTimeEpoch = jsonParser.getTimeStampLong();
-                    Date date = new Date(localTimeEpoch * 1000L);
-                    DateFormat format = new SimpleDateFormat("HH:MM");
-                    format.setTimeZone(TimeZone.getTimeZone(timezoneId));
-                    String localTime = format.format(date);
+                    String localTime = TimeConverter.getTimeInFormat(Calendar.getInstance().getTimeInMillis()/1000, timezoneId, "HH:MM");
 
 
                     citiesInfos.add(new NewItem(cityName, cur_temp, localTime));

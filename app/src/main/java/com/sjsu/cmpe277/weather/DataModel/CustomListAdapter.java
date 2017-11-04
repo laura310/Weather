@@ -53,7 +53,7 @@ public class CustomListAdapter extends BaseAdapter {
         }
 
         holder.headlineView.setText(listData.get(position).getCity());
-        holder.reporterNameView.setText("By, " + listData.get(position).getTemp());
+        holder.reporterNameView.setText(listData.get(position).getTemp());
         holder.reportedDateView.setText(listData.get(position).getDate());
         return convertView;
     }

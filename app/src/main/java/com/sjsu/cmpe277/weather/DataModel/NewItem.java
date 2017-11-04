@@ -19,24 +19,11 @@ public class NewItem {
         return city;
     }
 
-    public void setCity(String city) {
-        this.city = city;
-    }
-
     public String getTemp() {
         return temp;
-    }
-
-    public void setTemp(String temp) {
-        this.temp = temp;
     }
 
     public String getDate() {
         return date;
     }
-
-    public void setDate(String date) {
-        this.date = date;
-    }
-
 }
