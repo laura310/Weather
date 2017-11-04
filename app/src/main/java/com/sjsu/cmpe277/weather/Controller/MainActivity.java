@@ -60,8 +60,8 @@ public class MainActivity extends AppCompatActivity {
 
     Button addButton;
     Button addCurrentButton;
-    ListView cityListGridView;
     ListView listView;
+
     CityDB cityDB;
     final int PLACE_AUTOCOMPLETE_REQUEST_CODE = 1;
     final int MY_PERMISSION_REQUEST_CODE = 1;
@@ -79,7 +79,6 @@ public class MainActivity extends AppCompatActivity {
 
         cityDB = new CityDB(this);
         listView = (ListView) findViewById(R.id.custom_list);
-
 
         addButton = (Button) findViewById(R.id.addbutton);
         addButton.setOnClickListener(new View.OnClickListener() {
@@ -133,13 +132,12 @@ public class MainActivity extends AppCompatActivity {
         });
         new FetchCityInfosTask(cityDB, this).execute();
 
-        cityListGridView = (ListView) findViewById(R.id.custom_list);
-        cityListGridView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+        listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
 
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
 
-                NewItem cityObject = (NewItem) cityListGridView.getItemAtPosition(position);
+                NewItem cityObject = (NewItem) listView.getItemAtPosition(position);
                 String cityName = cityObject.getCity();
                 Log.i("Info", cityName);
 
@@ -158,8 +156,8 @@ public class MainActivity extends AppCompatActivity {
         Log.i("Info", "current unit is " + s);
 
 
-        cityListGridView.setLongClickable(true);
-        cityListGridView.setOnItemLongClickListener(new AdapterView.OnItemLongClickListener() {
+        listView.setLongClickable(true);
+        listView.setOnItemLongClickListener(new AdapterView.OnItemLongClickListener() {
             public boolean onItemLongClick(AdapterView<?> parent, View v, final int position, long id) {
                 //Do your tasks here
 
@@ -359,7 +357,7 @@ public class MainActivity extends AppCompatActivity {
                     context,
                     citiesInfos
             );
-            cityListGridView.setAdapter(gridViewAdapter);
+            listView.setAdapter(gridViewAdapter);
         }
     }
 
