@@ -121,7 +121,7 @@ public class MainActivity extends AppCompatActivity {
                             Toast.makeText(MainActivity.this, "Current location has been added",Toast.LENGTH_LONG).show();
                         } else {
                             cityDB.insertCity(currentCity, String.valueOf(location.getLatitude()), String.valueOf(location.getLongitude()));
-
+                            new FetchCityInfosTask(cityDB, MainActivity.this).execute();
                         }
                     } catch(Exception e){
                         Toast.makeText(MainActivity.this, "Location Not Available",Toast.LENGTH_LONG).show();
@@ -171,11 +171,12 @@ public class MainActivity extends AppCompatActivity {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
                         //do your work here
-                        cityDB.deleteCity(gridViewAdapter.getItem(position).toString());
+                        NewItem deleteCity = (NewItem) gridViewAdapter.getItem(position);
+
+                        cityDB.deleteCity(deleteCity.getCity());
                         Log.i("Info", "remove city" + gridViewAdapter.getItem(position).toString());
                         citiesInfos.remove(gridViewAdapter.getItem(position));
                         gridViewAdapter.notifyDataSetChanged();
-
                         dialog.dismiss();
 
                     }
