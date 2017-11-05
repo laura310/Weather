@@ -108,9 +108,9 @@
     <!--</GridView>-->
 
 
-    <ScrollView
+    <HorizontalScrollView
         android:id="@+id/scrollViewTodayForecast"
-        android:layout_width="643dp"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginEnd="1dp"
         android:layout_marginRight="1dp"
@@ -121,10 +121,14 @@
         app:layout_constraintTop_toBottomOf="@+id/txtViewCurDate"
         tools:layout_constraintRight_creator="1"
         tools:layout_constraintTop_creator="1">
-
-        <RelativeLayout
-            android:layout_width="match_parent"
+        <FrameLayout
+            android:layout_width="fill_parent"
             android:layout_height="match_parent">
+
+        <LinearLayout
+            android:layout_width="800dp"
+            android:layout_height="match_parent"
+            android:orientation="horizontal">
 
             <GridView
                 android:id="@+id/gridViewTodayForecast"
@@ -135,9 +139,11 @@
                 android:layout_marginTop="2dp"
                 android:horizontalSpacing="1dp"
                 android:numColumns="8"
-                android:orientation="horizontal"
                 android:stretchMode="columnWidth"
                 android:verticalSpacing="1dp"
+                android:scrollbarAlwaysDrawHorizontalTrack="true"
+                android:scrollbarAlwaysDrawVerticalTrack="true"
+                android:scrollbars="horizontal"
                 app:layout_constraintHorizontal_bias="0.0"
                 app:layout_constraintLeft_toLeftOf="parent"
                 app:layout_constraintRight_toRightOf="parent"
@@ -147,8 +153,9 @@
                 tools:layout_constraintRight_creator="1"
                 android:layout_alignParentEnd="true"></GridView>
 
-        </RelativeLayout>
-    </ScrollView>
+        </LinearLayout>
+        </FrameLayout>
+    </HorizontalScrollView>
 
     <GridView
         android:id="@+id/gridView5dayForecast"
