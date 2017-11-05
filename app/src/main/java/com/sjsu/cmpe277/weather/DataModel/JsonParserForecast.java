@@ -46,13 +46,12 @@ public class JsonParserForecast {
             }
 
             for(int i = 0; i < 8; i++) {
-                JSONObject jsonObject = jsonArray.getJSONObject(i);
-                String status = jsonObject.getJSONArray("weather").getJSONObject(0).getString("main");
+                String status = jsonArray.getJSONObject(i).getJSONArray("weather").getJSONObject(0).getString("main");
                 infos.add(status);
             }
 
             for(int i = 0; i < 8; i++) {
-                long temp = jsonObject.getJSONObject("main").getLong("temp");
+                long temp = jsonArray.getJSONObject(i).getJSONObject("main").getLong("temp");
                 String tempStr = "" + Util.convertTemperature(temp, preferences);
                 infos.add(tempStr);
             }
@@ -69,7 +68,7 @@ public class JsonParserForecast {
         List<String> infos = new ArrayList<>();
         JSONArray jsonArray = jsonObject.getJSONArray("list");
 
-        for(int i = 1; -4 + i * 8 < jsonArray.length(); i++) {
+        for(int i = 1; -4 + i * 8 +1< jsonArray.length(); i++) {
             int dayNoonIndex = -4 + i * 8;
             JSONObject dayNoonObj = jsonArray.getJSONObject(dayNoonIndex);
             JSONObject dayNoonWeatherObj = dayNoonObj.getJSONArray("weather").getJSONObject(0);
@@ -83,6 +82,8 @@ public class JsonParserForecast {
                                     jsonArray.getJSONObject(dayNoonIndex + 1).getJSONObject("main").getLong("temp_min"));
             long dayLow = Math.min(jsonArray.getJSONObject(dayNoonIndex - 4).getJSONObject("main").getLong("temp_min"),
                                    jsonArray.getJSONObject(dayNoonIndex + 4).getJSONObject("main").getLong("temp_min"));
+//            long dayHigh = getDayHigh();
+//            long dayLow = getDayLow();
 
             String high = Util.convertTemperature(dayHigh, preferences) + "";
             String low = Util.convertTemperature(dayLow, preferences) + "";

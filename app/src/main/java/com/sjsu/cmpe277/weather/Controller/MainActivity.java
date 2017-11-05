@@ -57,19 +57,19 @@ import java.util.Locale;
 import java.util.TimeZone;
 
 public class MainActivity extends AppCompatActivity {
+    final int PLACE_AUTOCOMPLETE_REQUEST_CODE = 1;
+    final int MY_PERMISSION_REQUEST_CODE = 1;
 
     Button addButton;
     Button addCurrentButton;
     ListView listView;
 
     CityDB cityDB;
-    final int PLACE_AUTOCOMPLETE_REQUEST_CODE = 1;
-    final int MY_PERMISSION_REQUEST_CODE = 1;
-    CustomListAdapter gridViewAdapter = null;
     LocationManager locationManager;
+    CustomListAdapter gridViewAdapter = null;
+
     String currentCity = "";
     List<String> cities;
-
     ArrayList<NewItem> citiesInfos = new ArrayList<>();
 
     @Override
@@ -84,12 +84,12 @@ public class MainActivity extends AppCompatActivity {
         addButton.setOnClickListener(new View.OnClickListener() {
             public void onClick(View arg0) {
                 try {
-
                     AutocompleteFilter typeFilter = new AutocompleteFilter.Builder()
                             .setTypeFilter(AutocompleteFilter.TYPE_FILTER_CITIES)
                             .build();
                     Intent intent = new PlaceAutocomplete.IntentBuilder(PlaceAutocomplete.MODE_FULLSCREEN).setFilter(typeFilter).build(MainActivity.this);
                     startActivityForResult(intent, PLACE_AUTOCOMPLETE_REQUEST_CODE);
+
                 } catch (GooglePlayServicesRepairableException e) {
                     // TODO: Handle the error.
                 } catch (GooglePlayServicesNotAvailableException e) {
