@@ -44,6 +44,7 @@ public class CityViewActivity extends AppCompatActivity {
     List<String> forecastInfos = new ArrayList<>();
 
     TextView cityNameTxtView;
+    TextView cityCurrentView;
     TextView curStatusTxtView;
     TextView curTempTxtView;
     TextView curDateTxtView;
@@ -55,7 +56,7 @@ public class CityViewActivity extends AppCompatActivity {
     int curHour;  // set in FetchCurWeatherTask, threfore FetchTodayForecastTask needs to be inside FetchCurWeatherTask
 
     private float x1,x2;
-    static final int MIN_DISTANCE = 150;
+    static final int MIN_DISTANCE = 100;
     int position;
     List<String> cities;
     String currentCity;
@@ -72,6 +73,7 @@ public class CityViewActivity extends AppCompatActivity {
         cities = getIntent().getStringArrayListExtra(AppConstants.LIST_VIEW_Array);
 
         cityNameTxtView = (TextView) findViewById(R.id.txtViewCityName);
+        cityCurrentView = (TextView) findViewById(R.id.txtViewCurrent);
         curStatusTxtView = (TextView) findViewById(R.id.txtViewWeatherStatus);
         curTempTxtView = (TextView) findViewById(R.id.txtViewCurTemp);
         curDateTxtView = (TextView) findViewById(R.id.txtViewCurDate);
@@ -80,6 +82,12 @@ public class CityViewActivity extends AppCompatActivity {
         forecastGridView = (GridView) findViewById(R.id.gridView5dayForecast);
 
         cityNameTxtView.setText(cityName);
+        Log.i("hhh", cityName);
+        Log.i("hh", currentCity);
+
+        if (cityName.equals(currentCity)) {
+            cityCurrentView.setText("You are here");
+        }
         Log.i("@@@@", "cityNameTxtView.setText(cityName): cityname: " + cityName);
         new FetchCurWeatherTask(cityName, this).execute();
 //        new FetchTodayForecastTask(cityName, this).execute();
@@ -108,6 +116,7 @@ public class CityViewActivity extends AppCompatActivity {
 
             return curWeatherInfo;
         }
+
 
         @Override
         protected void onPostExecute(String curWeatherInfo) {
@@ -155,10 +164,10 @@ public class CityViewActivity extends AppCompatActivity {
                 {
                     if (deltaX > 0) {
                         position--;
-                        Toast.makeText(this, "left2right swipe", Toast.LENGTH_SHORT).show();
+                        //Toast.makeText(this, "left2right swipe", Toast.LENGTH_SHORT).show();
                     } else {
                         position++;
-                        Toast.makeText(this, "right2left swipe", Toast.LENGTH_SHORT).show();
+                       // Toast.makeText(this, "right2left swipe", Toast.LENGTH_SHORT).show();
                     }
                     toSwipe(position);
                 }
@@ -174,6 +183,11 @@ public class CityViewActivity extends AppCompatActivity {
         if (current < cities.size() && current >= 0) {
             cityName = cities.get(current);
             cityNameTxtView.setText(cityName);
+            if (cityName.equals(currentCity)) {
+                cityCurrentView.setText("You are here now!");
+            } else {
+                cityCurrentView.setText("");
+            }
             Log.i("@@@@", "cityNameTxtView.setText(cityName): cityname: " + cities.get(current) + cities.size());
             new FetchCurWeatherTask(cityName, this).execute();
             new Fetch5DayForeCastTask(cityName, this).execute();

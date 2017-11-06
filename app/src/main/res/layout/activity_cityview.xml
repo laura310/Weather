@@ -33,6 +33,14 @@
 
             <TextView
             android:layout_weight="1"
+            android:id="@+id/txtViewCurrent"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="1dp"
+            android:textSize="20dp"/>
+
+            <TextView
+            android:layout_weight="1"
             android:id="@+id/txtViewWeatherStatus"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
@@ -84,8 +92,8 @@
 
     <HorizontalScrollView
         android:id="@+id/scrollViewTodayForecast"
-        android:layout_width="380dp"
-        android:layout_height="194dp"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
         android:layout_marginEnd="1dp"
         android:layout_marginRight="1dp"
         android:layout_marginLeft="1dp"

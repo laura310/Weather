@@ -35,6 +35,7 @@ import com.google.android.gms.location.places.AutocompleteFilter;
 import com.google.android.gms.location.places.Place;
 import com.google.android.gms.location.places.ui.PlaceAutocomplete;
 import com.sjsu.cmpe277.weather.DataModel.AppConstants;
+import com.sjsu.cmpe277.weather.DataModel.City;
 import com.sjsu.cmpe277.weather.DataModel.CityDB;
 import com.sjsu.cmpe277.weather.DataModel.CustomListAdapter;
 import com.sjsu.cmpe277.weather.DataModel.JsonParser;
@@ -101,35 +102,18 @@ public class MainActivity extends AppCompatActivity {
         addCurrentButton = (Button) findViewById(R.id.addCurrentbutton);
         addCurrentButton.setOnClickListener(new View.OnClickListener() {
             public void onClick(View arg0) {
-                if (ContextCompat.checkSelfPermission(MainActivity.this,
-                        Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
-                    if (ActivityCompat.shouldShowRequestPermissionRationale(MainActivity.this,
-                            Manifest.permission.ACCESS_COARSE_LOCATION)) {
-                            ActivityCompat.requestPermissions(MainActivity.this,
-                                new String[]{Manifest.permission.ACCESS_COARSE_LOCATION}, MY_PERMISSION_REQUEST_CODE);
-                    } else {
-                        ActivityCompat.requestPermissions(MainActivity.this,
-                                new String[]{Manifest.permission.ACCESS_COARSE_LOCATION}, MY_PERMISSION_REQUEST_CODE);
-                    }
-                } else {
-                    locationManager = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
-                    Location location = locationManager.getLastKnownLocation(LocationManager.GPS_PROVIDER);
-                    try{
-                        currentCity = hereLocation(location.getLatitude(), location.getLongitude());
-                        Log.i("Info", currentCity);
+                        City c = getCurrentCity2();
+                        if (c == null) {
+                            return;
+                        }
                         List<String> cities = cityDB.getAllCities();
-                        if (cities.contains(currentCity)) {
+                        if (cities.contains(c.getName())) {
                             Toast.makeText(MainActivity.this, "Current location has been added",Toast.LENGTH_LONG).show();
                         } else {
-                            cityDB.insertCity(currentCity, String.valueOf(location.getLatitude()), String.valueOf(location.getLongitude()));
+                            cityDB.insertCity(c.getName(), c.getLat(), c.getLon());
                             new FetchCityInfosTask(cityDB, MainActivity.this).execute();
                         }
-                    } catch(Exception e){
-                        Toast.makeText(MainActivity.this, "Location Not Available",Toast.LENGTH_LONG).show();
-                        Log.e("Info","error");
-                    }
                 }
-            }
         });
         new FetchCityInfosTask(cityDB, this).execute();
 
@@ -143,6 +127,7 @@ public class MainActivity extends AppCompatActivity {
                 cities = cityDB.getAllCities();
                 Log.i("Info", cityName);
 
+                currentCity = getCurrentCity2().getName();
                 Intent intent = new Intent(MainActivity.this, CityViewActivity.class);
                 intent.putExtra(AppConstants.LIST_VIEW_CityName, cityName);
                 intent.putExtra(AppConstants.LIST_VIEW_Position, position);
@@ -199,6 +184,33 @@ public class MainActivity extends AppCompatActivity {
         });
 
 
+    }
+
+    public City getCurrentCity2(){
+        City c = null;
+        if (ContextCompat.checkSelfPermission(MainActivity.this,
+                Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+            if (ActivityCompat.shouldShowRequestPermissionRationale(MainActivity.this,
+                    Manifest.permission.ACCESS_COARSE_LOCATION)) {
+                ActivityCompat.requestPermissions(MainActivity.this,
+                        new String[]{Manifest.permission.ACCESS_COARSE_LOCATION}, MY_PERMISSION_REQUEST_CODE);
+            } else {
+                ActivityCompat.requestPermissions(MainActivity.this,
+                        new String[]{Manifest.permission.ACCESS_COARSE_LOCATION}, MY_PERMISSION_REQUEST_CODE);
+            }
+        } else {
+            locationManager = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
+            Location location = locationManager.getLastKnownLocation(LocationManager.GPS_PROVIDER);
+            try {
+                currentCity = hereLocation(location.getLatitude(), location.getLongitude());
+                c = new City(currentCity, String.valueOf(location.getLatitude()),String.valueOf(location.getLongitude()));
+                Log.i("Info", currentCity);
+            } catch (Exception e) {
+                Toast.makeText(MainActivity.this, "Current Location Not Available", Toast.LENGTH_LONG).show();
+                Log.e("Info", "error");
+            }
+        }
+            return c;
     }
     @Override
     public void onRequestPermissionsResult(int requestCode,  String[] permissions,  int[] grantResults){
