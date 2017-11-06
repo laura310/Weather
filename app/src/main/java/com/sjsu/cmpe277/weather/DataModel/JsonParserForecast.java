@@ -113,7 +113,7 @@ public class JsonParserForecast {
         try {
             for(int i = day * cntPerDay; i < (day + 1) * cntPerDay; i++) {
 
-                dayLow = Math.min(dayLow, (int)jsonArray.getJSONObject(i).getJSONObject("main").getLong("temp_min"));
+                dayLow = Math.min(dayLow, (int)jsonArray.getJSONObject(i).getJSONObject("main").getLong("temp"));
 
             }
         } catch (JSONException e) {
