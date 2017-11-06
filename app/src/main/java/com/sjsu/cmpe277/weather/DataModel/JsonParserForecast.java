@@ -5,6 +5,8 @@ import android.content.SharedPreferences;
 import android.preference.PreferenceManager;
 import android.util.Log;
 
+import com.sjsu.cmpe277.weather.R;
+
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
