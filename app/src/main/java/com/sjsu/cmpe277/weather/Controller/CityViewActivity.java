@@ -52,6 +52,7 @@ public class CityViewActivity extends AppCompatActivity {
     GridView todayForecastGridView;
     GridView forecastGridView;
 
+    int curHour;  // set in FetchCurWeatherTask, threfore FetchTodayForecastTask needs to be inside FetchCurWeatherTask
 
     private float x1,x2;
     static final int MIN_DISTANCE = 150;
@@ -80,7 +81,7 @@ public class CityViewActivity extends AppCompatActivity {
         cityNameTxtView.setText(cityName);
         Log.i("@@@@", "cityNameTxtView.setText(cityName): cityname: " + cityName);
         new FetchCurWeatherTask(cityName, this).execute();
-        new FetchTodayForecastTask(cityName, this).execute();
+//        new FetchTodayForecastTask(cityName, this).execute();
         new Fetch5DayForeCastTask(cityName, this).execute();
 
         ActionBar actionBar = this.getSupportActionBar();
@@ -127,6 +128,9 @@ public class CityViewActivity extends AppCompatActivity {
 
                 String curTempHighLow = jsonParser.getTemp(AppConstants.HIGH) + "  " + jsonParser.getTemp(AppConstants.LOW);
                 curHighLowTxtView.setText(curTempHighLow);
+
+
+                new FetchTodayForecastTask(cityName, context).execute();
 
             } catch (JSONException e) {
                 Log.i("Exception", "Exception from onPostExecute(String curWeatherInfo). " + e);
@@ -234,7 +238,8 @@ public class CityViewActivity extends AppCompatActivity {
         protected void onPostExecute(String forecastInfo) {
             try {
                 JsonParserForecast jsonParserForecast = new JsonParserForecast(forecastInfo, context);
-                todayForecastInfos = jsonParserForecast.getTodayForecastInfo();
+                Log.i("DEBUG", "curHour sent to getTodayForecastInfo is: " + curHour);
+                todayForecastInfos = jsonParserForecast.getTodayForecastInfo(curHour);
 
                 gridViewForecastAdapter = new ArrayAdapter<String> (
                     context,
@@ -279,7 +284,9 @@ public class CityViewActivity extends AppCompatActivity {
 
         @Override
         protected void onPostExecute(String timezoneId) {
-            String todayDate = TimeConverter.getTimeInFormat(Calendar.getInstance().getTimeInMillis()/1000, timezoneId, "EEE, MMM d, HH:MM, y");
+            long tmpTimestamp = Calendar.getInstance().getTimeInMillis() / 1000;
+            String todayDate = TimeConverter.getTimeInFormat(tmpTimestamp, timezoneId, "EEE, MMM d, y");
+            curHour = Integer.valueOf(TimeConverter.getTimeInFormat(tmpTimestamp, timezoneId, "HH"));
 
             curDateTxtView.setText(todayDate);
         }

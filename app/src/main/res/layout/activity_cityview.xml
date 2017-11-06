@@ -81,85 +81,61 @@
         app:layout_constraintRight_toRightOf="parent"
         app:layout_constraintHorizontal_bias="0.95" />
 
-    <!--<GridView-->
-        <!--android:id="@+id/gridViewTodayForecast"-->
-        <!--android:layout_width="378dp"-->
-        <!--android:layout_height="185dp"-->
-        <!--android:numColumns="8"-->
-        <!--android:stretchMode="columnWidth"-->
-        <!--android:layout_marginEnd="2dp"-->
-        <!--android:layout_marginBottom="2dp"-->
-        <!--android:layout_marginLeft="2dp"-->
-        <!--android:layout_marginStart="2dp"-->
-        <!--android:layout_marginTop="2dp"-->
-        <!--android:orientation="vertical"-->
-        <!--android:horizontalSpacing="1dp"-->
-        <!--android:verticalSpacing="1dp"-->
-        <!--app:layout_constraintHorizontal_bias="0.0"-->
-        <!--app:layout_constraintLeft_toLeftOf="parent"-->
-        <!--app:layout_constraintRight_toRightOf="parent"-->
-        <!--app:layout_constraintTop_toBottomOf="@+id/txtViewCurDate"-->
-        <!--app:layout_constraintBottom_toTopOf="@+id/gridView5dayForecast"-->
-        <!--tools:layout_constraintLeft_creator="1"-->
-        <!--tools:layout_constraintRight_creator="1"-->
-        <!--app:layout_constraintVertical_bias="0.0"-->
-        <!--tools:layout_constraintBottom_creator="1">-->
-
-    <!--</GridView>-->
-
 
     <HorizontalScrollView
         android:id="@+id/scrollViewTodayForecast"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
+        android:layout_width="380dp"
+        android:layout_height="194dp"
         android:layout_marginEnd="1dp"
         android:layout_marginRight="1dp"
-        android:layout_marginTop="6dp"
         android:layout_marginLeft="1dp"
+        android:layout_marginTop="6dp"
         app:layout_constraintBottom_toTopOf="@+id/gridView5dayForecast"
         app:layout_constraintRight_toRightOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/txtViewCurDate"
         tools:layout_constraintRight_creator="1"
-        tools:layout_constraintTop_creator="1">
+        tools:layout_constraintTop_creator="1"
+        tools:layout_editor_absoluteY="154dp"
+        tools:layout_editor_absoluteX="3dp">
         <FrameLayout
             android:layout_width="fill_parent"
             android:layout_height="match_parent">
 
-        <LinearLayout
-            android:layout_width="800dp"
-            android:layout_height="match_parent"
-            android:orientation="horizontal">
-
-            <GridView
-                android:id="@+id/gridViewTodayForecast"
-                android:layout_width="match_parent"
+            <LinearLayout
+                android:layout_width="800dp"
                 android:layout_height="match_parent"
-                android:layout_marginLeft="2dp"
-                android:layout_marginStart="2dp"
-                android:layout_marginTop="2dp"
-                android:horizontalSpacing="1dp"
-                android:numColumns="8"
-                android:stretchMode="columnWidth"
-                android:verticalSpacing="1dp"
-                android:scrollbarAlwaysDrawHorizontalTrack="true"
-                android:scrollbarAlwaysDrawVerticalTrack="true"
-                android:scrollbars="horizontal"
-                app:layout_constraintHorizontal_bias="0.0"
-                app:layout_constraintLeft_toLeftOf="parent"
-                app:layout_constraintRight_toRightOf="parent"
-                app:layout_constraintVertical_bias="0.0"
-                tools:layout_constraintBottom_creator="1"
-                tools:layout_constraintLeft_creator="1"
-                tools:layout_constraintRight_creator="1"
-                android:layout_alignParentEnd="true"></GridView>
+                android:orientation="horizontal">
 
-        </LinearLayout>
+                <GridView
+                    android:id="@+id/gridViewTodayForecast"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:layout_alignParentEnd="true"
+                    android:layout_marginLeft="1dp"
+                    android:layout_marginStart="1dp"
+                    android:layout_marginTop="2dp"
+                    android:horizontalSpacing="1dp"
+                    android:numColumns="8"
+                    android:scrollbarAlwaysDrawHorizontalTrack="true"
+                    android:scrollbarAlwaysDrawVerticalTrack="true"
+                    android:scrollbars="horizontal"
+                    android:stretchMode="columnWidth"
+                    android:verticalSpacing="1dp"
+                    app:layout_constraintHorizontal_bias="0.0"
+                    app:layout_constraintLeft_toLeftOf="parent"
+                    app:layout_constraintRight_toRightOf="parent"
+                    app:layout_constraintVertical_bias="0.0"
+                    tools:layout_constraintBottom_creator="1"
+                    tools:layout_constraintLeft_creator="1"
+                    tools:layout_constraintRight_creator="1"></GridView>
+
+            </LinearLayout>
         </FrameLayout>
     </HorizontalScrollView>
 
     <GridView
         android:id="@+id/gridView5dayForecast"
-        android:layout_width="match_parent"
+        android:layout_width="0dp"
         android:layout_height="352dp"
         android:layout_marginBottom="2dp"
         android:layout_marginEnd="5dp"
