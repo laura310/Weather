@@ -1,0 +1,40 @@
+{
+  "project_info": {
+    "project_number": "1029844916991",
+    "project_id": "my-project-1473553439183"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:1029844916991:android:7415829f336cc93e",
+        "android_client_info": {
+          "package_name": "com.sjsu.cmpe277.weather"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "1029844916991-su6m9fk8jmb9qrs9dddqjjou1a7k0k59.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDkh1Bu9ykNPqR_fnt8ANI4S907zzQLRpA"
+        }
+      ],
+      "services": {
+        "analytics_service": {
+          "status": 1
+        },
+        "appinvite_service": {
+          "status": 1,
+          "other_platform_oauth_client": []
+        },
+        "ads_service": {
+          "status": 1
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
