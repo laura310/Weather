@@ -346,7 +346,7 @@ public class MainActivity extends AppCompatActivity {
                     JsonParser jsonParser = new JsonParser(citiesTemps.get(i), context);
                     String cur_temp = jsonParser.getTemp(AppConstants.CURRENT);
                     String timezoneId = new JSONObject(citiesTimes.get(i)).getString("timeZoneId");
-                    String localTime = TimeConverter.getTimeInFormat(Calendar.getInstance().getTimeInMillis()/1000, timezoneId, "HH:MM");
+                    String localTime = TimeConverter.getTimeInFormat(Calendar.getInstance().getTimeInMillis()/1000, timezoneId, "HH:mm");
 
 
                     citiesInfos.add(new NewItem(cityName, cur_temp, localTime));
