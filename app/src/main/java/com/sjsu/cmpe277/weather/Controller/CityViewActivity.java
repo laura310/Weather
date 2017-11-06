@@ -59,13 +59,14 @@ public class CityViewActivity extends AppCompatActivity {
     int position;
     List<String> cities;
     String currentCity;
+    String cityName;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_cityview);
 
-        String cityName = getIntent().getStringExtra(AppConstants.LIST_VIEW_CityName);
+        cityName = getIntent().getStringExtra(AppConstants.LIST_VIEW_CityName);
         currentCity = getIntent().getStringExtra(AppConstants.LIST_VIEW_CurrentCityName);
         position = getIntent().getIntExtra(AppConstants.LIST_VIEW_Position, 0);
         cities = getIntent().getStringArrayListExtra(AppConstants.LIST_VIEW_Array);
@@ -153,12 +154,13 @@ public class CityViewActivity extends AppCompatActivity {
                 if (Math.abs(deltaX) > MIN_DISTANCE)
                 {
                     if (deltaX > 0) {
-                        toSwipe(position - 1);
+                        position--;
                         Toast.makeText(this, "left2right swipe", Toast.LENGTH_SHORT).show();
                     } else {
-                        toSwipe(position + 1);
+                        position++;
                         Toast.makeText(this, "right2left swipe", Toast.LENGTH_SHORT).show();
                     }
+                    toSwipe(position);
                 }
                 else
                 {
@@ -170,12 +172,11 @@ public class CityViewActivity extends AppCompatActivity {
     }
     private void toSwipe(int current){
         if (current < cities.size() && current >= 0) {
-            Intent intent = new Intent(CityViewActivity.this, CityViewActivity.class);
-            intent.putExtra(AppConstants.LIST_VIEW_CityName, cities.get(current));
-            intent.putExtra(AppConstants.LIST_VIEW_Position, current);
-            intent.putStringArrayListExtra(AppConstants.LIST_VIEW_Array, (ArrayList<String>) cities);
-            intent.putExtra(AppConstants.LIST_VIEW_CurrentCityName, currentCity);
-            startActivity(intent);
+            cityName = cities.get(current);
+            cityNameTxtView.setText(cityName);
+            Log.i("@@@@", "cityNameTxtView.setText(cityName): cityname: " + cities.get(current) + cities.size());
+            new FetchCurWeatherTask(cityName, this).execute();
+            new Fetch5DayForeCastTask(cityName, this).execute();
         }
     }
 

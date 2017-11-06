@@ -79,6 +79,7 @@ public class MainActivity extends AppCompatActivity {
 
         cityDB = new CityDB(this);
         listView = (ListView) findViewById(R.id.custom_list);
+        cities = cityDB.getAllCities();
 
         addButton = (Button) findViewById(R.id.addbutton);
         addButton.setOnClickListener(new View.OnClickListener() {
@@ -139,6 +140,7 @@ public class MainActivity extends AppCompatActivity {
 
                 NewItem cityObject = (NewItem) listView.getItemAtPosition(position);
                 String cityName = cityObject.getCity();
+                cities = cityDB.getAllCities();
                 Log.i("Info", cityName);
 
                 Intent intent = new Intent(MainActivity.this, CityViewActivity.class);
@@ -174,6 +176,7 @@ public class MainActivity extends AppCompatActivity {
                         NewItem deleteCity = (NewItem) gridViewAdapter.getItem(position);
 
                         cityDB.deleteCity(deleteCity.getCity());
+                        cities = cityDB.getAllCities();
                         Log.i("Info", "remove city" + gridViewAdapter.getItem(position).toString());
                         citiesInfos.remove(gridViewAdapter.getItem(position));
                         gridViewAdapter.notifyDataSetChanged();
@@ -260,7 +263,6 @@ public class MainActivity extends AppCompatActivity {
                     Log.i("Info", "lat is " + String.valueOf(place.getLatLng().latitude));
 
                     cityDB.insertCity(place.getName().toString(), String.valueOf(place.getLatLng().latitude), String.valueOf(place.getLatLng().longitude));
-
                     new FetchCityInfosTask(cityDB, this).execute();
 
                     Log.i("INFO", "Place: " + place.getName());
@@ -268,7 +270,7 @@ public class MainActivity extends AppCompatActivity {
             } else if (resultCode == PlaceAutocomplete.RESULT_ERROR) {
                 Status status = PlaceAutocomplete.getStatus(this, data);
                 // TODO: Handle the error.
-                Log.i("ERROR", status.getStatusMessage());
+                Log.e("ERROR", status.getStatusMessage().toString());
 
             } else if (resultCode == RESULT_CANCELED) {
                 // The user canceled the operation.
