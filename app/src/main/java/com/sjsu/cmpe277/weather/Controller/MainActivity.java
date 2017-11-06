@@ -127,7 +127,8 @@ public class MainActivity extends AppCompatActivity {
                 cities = cityDB.getAllCities();
                 Log.i("Info", cityName);
 
-                currentCity = getCurrentCity2().getName();
+               if (getCurrentCity2() != null) currentCity = getCurrentCity2().getName();
+                else currentCity = "";
                 Intent intent = new Intent(MainActivity.this, CityViewActivity.class);
                 intent.putExtra(AppConstants.LIST_VIEW_CityName, cityName);
                 intent.putExtra(AppConstants.LIST_VIEW_Position, position);
