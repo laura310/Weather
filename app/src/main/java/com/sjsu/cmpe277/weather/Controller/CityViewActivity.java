@@ -127,7 +127,7 @@ public class CityViewActivity extends AppCompatActivity {
                 curStatusTxtView.setText(curStatus);
 
                 String curTemp = jsonParser.getTemp(AppConstants.CURRENT);
-                curTempTxtView.setText(curTemp);
+                curTempTxtView.setText(curTemp + "°");
 
                 City city = new CityDB(context).getCityData(cityName);
                 String lat = city.getLat();
@@ -136,7 +136,7 @@ public class CityViewActivity extends AppCompatActivity {
                 String timeZoneURLParaPart = lat + "," + lon + "&timestamp=" + Calendar.getInstance().getTimeInMillis()/1000;
                 new FetchTodayDateTask(timeZoneURLParaPart, context).execute();
 
-                String curTempHighLow = jsonParser.getTemp(AppConstants.HIGH) + "  " + jsonParser.getTemp(AppConstants.LOW);
+                String curTempHighLow = jsonParser.getTemp(AppConstants.HIGH) + "°   " + jsonParser.getTemp(AppConstants.LOW) + "°";
                 curHighLowTxtView.setText(curTempHighLow);
 
 

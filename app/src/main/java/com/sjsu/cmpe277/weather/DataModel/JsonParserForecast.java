@@ -42,7 +42,15 @@ public class JsonParserForecast {
             JSONArray jsonArray = jsonObject.getJSONArray("list");
 
             for(int i = 0; i <= 7; i++) {
-                infos.add((curHour + i * 3) % 24 + "");
+                int hour = (curHour + i * 3) % 24;
+                String hourStr = "";
+                if(hour == 12) {
+                    hourStr = "12PM";
+                } else {
+                    hourStr = hour < 12 ? hour + "AM" : hour % 12 + "PM";
+                }
+
+                infos.add(hourStr);
             }
 
             for(int i = 0; i < 8; i++) {
@@ -52,7 +60,7 @@ public class JsonParserForecast {
 
             for(int i = 0; i < 8; i++) {
                 long temp = jsonArray.getJSONObject(i).getJSONObject("main").getLong("temp");
-                String tempStr = "" + Util.convertTemperature(temp, preferences);
+                String tempStr = Util.convertTemperature(temp, preferences) + "°";
                 infos.add(tempStr);
             }
 
@@ -78,8 +86,8 @@ public class JsonParserForecast {
             long dayHigh = getDayHigh(jsonArray, i, cntPerDay);
             long dayLow = getDayLow(jsonArray, i, cntPerDay);
 
-            String high = Util.convertTemperature(dayHigh, preferences) + "";
-            String low = Util.convertTemperature(dayLow, preferences) + "";
+            String high = Util.convertTemperature(dayHigh, preferences) + "°";
+            String low = Util.convertTemperature(dayLow, preferences) + "°";
 
             infos.add(dateDay);
             infos.add(status);

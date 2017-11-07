@@ -362,7 +362,7 @@ public class MainActivity extends AppCompatActivity {
                     String localTime = TimeConverter.getTimeInFormat(Calendar.getInstance().getTimeInMillis()/1000, timezoneId, "HH:mm");
 
 
-                    citiesInfos.add(new NewItem(cityName, cur_temp, localTime));
+                    citiesInfos.add(new NewItem(cityName, cur_temp + "°", localTime));
 
                 }
             } catch (JSONException e) {
