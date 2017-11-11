@@ -15,6 +15,7 @@ import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
 
@@ -75,13 +76,14 @@ public class JsonParserForecast {
         List<String> infos = new ArrayList<>();
         int cntPerDay = jsonObject.getInt("cnt") / 4;
         JSONArray jsonArray = jsonObject.getJSONArray("list");
+        String[] dateDays = getNext4DateDays(jsonArray.getJSONObject(0).getString("dt_txt"));
 
         for(int i = 0; i < 4; i++) {
             int dayNoonIndex = i * cntPerDay + cntPerDay / 2;
             JSONObject dayNoonObj = jsonArray.getJSONObject(dayNoonIndex);
             JSONObject dayNoonWeatherObj = dayNoonObj.getJSONArray("weather").getJSONObject(0);
 
-            String dateDay = getDateDay(dayNoonObj.getString("dt_txt"));
+            String dateDay = dateDays[i];
             String status = dayNoonWeatherObj.getString("main");
             long dayHigh = getDayHigh(jsonArray, i, cntPerDay);
             long dayLow = getDayLow(jsonArray, i, cntPerDay);
@@ -98,7 +100,6 @@ public class JsonParserForecast {
         Log.i("INFO", "infos: " + infos);
         return infos;
     }
-
 
     public long getDayHigh(JSONArray jsonArray, int day, int cntPerDay) {
         int dayHigh = Integer.MIN_VALUE;
@@ -147,4 +148,38 @@ public class JsonParserForecast {
 
         return dateDay;
     }
+
+
+    private Date getDate(String dateStr) {
+        String dateDay = "";
+        Date date = new Date();
+
+        try {
+            DateFormat format = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+            date = format.parse(dateStr);
+
+        } catch (ParseException e) {
+            e.printStackTrace();
+        }
+
+        return date;
+    }
+
+    private String[] getNext4DateDays(String dateString) {
+        String[] res = new String[4];
+        res[0] = getDateDay(dateString);
+
+        Date firstDay = getDate(dateString);
+        Calendar c = Calendar.getInstance();
+        c.setTime(firstDay);
+
+        for(int i = 0; i < 3; i++) {
+            c.add(Calendar.DATE, 1);
+            SimpleDateFormat format = new SimpleDateFormat("EEE");
+            res[i + 1] = format.format(c.getTime());
+        }
+
+        return res;
+    }
+
 }

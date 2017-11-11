@@ -84,8 +84,7 @@ public class CityViewActivity extends AppCompatActivity {
         }
         Log.i("@@@@", "cityNameTxtView.setText(cityName): cityname: " + cityName);
         new FetchCurWeatherTask(cityName, this).execute();
-//        new FetchTodayForecastTask(cityName, this).execute();
-        new Fetch5DayForeCastTask(cityName, this).execute();
+        new Fetch4DayForeCastTask(cityName, this).execute();
 
         ActionBar actionBar = this.getSupportActionBar();
         if(actionBar != null) {
@@ -182,17 +181,17 @@ public class CityViewActivity extends AppCompatActivity {
             } else {
                 cityCurrentView.setText("");
             }
-            Log.i("@@@@", "cityNameTxtView.setText(cityName): cityname: " + cities.get(current) + cities.size());
+            Log.i("INFO", "cityNameTxtView.setText(cityName): cityname: " + cities.get(current) + cities.size());
             new FetchCurWeatherTask(cityName, this).execute();
-            new Fetch5DayForeCastTask(cityName, this).execute();
+            new Fetch4DayForeCastTask(cityName, this).execute();
         }
     }
 
-    private class Fetch5DayForeCastTask extends AsyncTask<String, Void, String> {
+    private class Fetch4DayForeCastTask extends AsyncTask<String, Void, String> {
         String cityName;
         Context context;
 
-        Fetch5DayForeCastTask(String cityName, Context context) {
+        Fetch4DayForeCastTask(String cityName, Context context) {
             this.cityName = cityName;
             this.context = context;
         }
