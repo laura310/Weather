@@ -31,6 +31,7 @@ import android.widget.Toast;
 import com.google.android.gms.common.GooglePlayServicesNotAvailableException;
 import com.google.android.gms.common.GooglePlayServicesRepairableException;
 import com.google.android.gms.common.api.Status;
+import android.location.LocationListener;
 import com.google.android.gms.location.places.AutocompleteFilter;
 import com.google.android.gms.location.places.Place;
 import com.google.android.gms.location.places.ui.PlaceAutocomplete;
@@ -45,6 +46,7 @@ import com.sjsu.cmpe277.weather.DataModel.URLConnector;
 import com.sjsu.cmpe277.weather.R;
 
 
+
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -57,7 +59,7 @@ import java.util.List;
 import java.util.Locale;
 import java.util.TimeZone;
 
-public class MainActivity extends AppCompatActivity {
+public class MainActivity extends AppCompatActivity implements LocationListener{
     final int PLACE_AUTOCOMPLETE_REQUEST_CODE = 1;
     final int MY_PERMISSION_REQUEST_CODE = 1;
 
@@ -72,6 +74,7 @@ public class MainActivity extends AppCompatActivity {
     String currentCity = "";
     List<String> cities;
     ArrayList<NewItem> citiesInfos = new ArrayList<>();
+    Location _location;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -201,10 +204,12 @@ public class MainActivity extends AppCompatActivity {
             }
         } else {
             locationManager = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
+            locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 0, 0, this);
             Location location = locationManager.getLastKnownLocation(LocationManager.GPS_PROVIDER);
+            if (_location == null) _location = location;
             try {
-                currentCity = hereLocation(location.getLatitude(), location.getLongitude());
-                c = new City(currentCity, String.valueOf(location.getLatitude()),String.valueOf(location.getLongitude()));
+                currentCity = hereLocation(_location.getLatitude(), _location.getLongitude());
+                c = new City(currentCity, String.valueOf(_location.getLatitude()),String.valueOf(_location.getLongitude()));
                 Log.i("Info", currentCity);
             } catch (Exception e) {
                 Toast.makeText(MainActivity.this, "Current Location Not Available", Toast.LENGTH_LONG).show();
@@ -308,6 +313,12 @@ public class MainActivity extends AppCompatActivity {
         return curCity;
     }
 
+    @Override
+    public void onLocationChanged(Location location) {
+        Log.i("Message: ","Location changed, " + location.getAccuracy() + " , " + location.getLatitude()+ "," + location.getLongitude());
+        _location = location;
+    }
+
 
     private class FetchCityInfosTask extends AsyncTask<CityDB, Void, List<List<String>>> {
         List<String> cityNames;
@@ -376,5 +387,8 @@ public class MainActivity extends AppCompatActivity {
             listView.setAdapter(gridViewAdapter);
         }
     }
+    public void onStatusChanged(String provider, int status, Bundle extras) {}
+    public void onProviderEnabled(String provider) {}
+    public void onProviderDisabled(String provider) {}
 
 }
