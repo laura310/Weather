@@ -76,18 +76,23 @@ public class JsonParserForecast {
         List<String> infos = new ArrayList<>();
         int cntPerDay = jsonObject.getInt("cnt") / 4;
         JSONArray jsonArray = jsonObject.getJSONArray("list");
-        String[] dateDays = getNext4DateDays(jsonArray.getJSONObject(0).getString("dt_txt"));
+
+        Date tmrw = getDate(jsonArray.getJSONObject(0).getString("dt_txt"));
+        Calendar c = Calendar.getInstance();
+        c.setTime(tmrw);
+        c.add(Calendar.DATE, -1);
 
         for(int i = 0; i < 4; i++) {
             int dayNoonIndex = i * cntPerDay + cntPerDay / 2;
             JSONObject dayNoonObj = jsonArray.getJSONObject(dayNoonIndex);
             JSONObject dayNoonWeatherObj = dayNoonObj.getJSONArray("weather").getJSONObject(0);
 
-            String dateDay = dateDays[i];
+            c.add(Calendar.DATE, 1);
+            String dateDay = new SimpleDateFormat("EEE").format(c.getTime());
             String status = dayNoonWeatherObj.getString("main");
+
             long dayHigh = getDayHigh(jsonArray, i, cntPerDay);
             long dayLow = getDayLow(jsonArray, i, cntPerDay);
-
             String high = Util.convertTemperature(dayHigh, preferences) + "°";
             String low = Util.convertTemperature(dayLow, preferences) + "°";
 
@@ -132,26 +137,7 @@ public class JsonParserForecast {
         return dayLow;
     }
 
-
-    private String getDateDay(String dateStr) {
-        String dateDay = "";
-
-        try {
-            DateFormat format = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
-            Date date = format.parse(dateStr);
-            format = new SimpleDateFormat("EEE");
-            dateDay = format.format(date);
-
-        } catch (ParseException e) {
-            e.printStackTrace();
-        }
-
-        return dateDay;
-    }
-
-
     private Date getDate(String dateStr) {
-        String dateDay = "";
         Date date = new Date();
 
         try {
@@ -164,22 +150,4 @@ public class JsonParserForecast {
 
         return date;
     }
-
-    private String[] getNext4DateDays(String dateString) {
-        String[] res = new String[4];
-        res[0] = getDateDay(dateString);
-
-        Date firstDay = getDate(dateString);
-        Calendar c = Calendar.getInstance();
-        c.setTime(firstDay);
-
-        for(int i = 0; i < 3; i++) {
-            c.add(Calendar.DATE, 1);
-            SimpleDateFormat format = new SimpleDateFormat("EEE");
-            res[i + 1] = format.format(c.getTime());
-        }
-
-        return res;
-    }
-
 }

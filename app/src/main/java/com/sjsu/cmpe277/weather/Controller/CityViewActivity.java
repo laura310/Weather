@@ -82,7 +82,7 @@ public class CityViewActivity extends AppCompatActivity {
         if (cityName.equals(currentCity)) {
             cityCurrentView.setText("You are here");
         }
-        Log.i("@@@@", "cityNameTxtView.setText(cityName): cityname: " + cityName);
+        Log.i("INFO", "cityNameTxtView.setText(cityName): cityname: " + cityName);
         new FetchCurWeatherTask(cityName, this).execute();
         new Fetch4DayForeCastTask(cityName, this).execute();
 
