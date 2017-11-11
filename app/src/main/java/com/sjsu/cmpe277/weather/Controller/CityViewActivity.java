@@ -1,7 +1,6 @@
 package com.sjsu.cmpe277.weather.Controller;
 
 import android.content.Context;
-import android.content.Intent;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v7.app.ActionBar;
@@ -11,7 +10,6 @@ import android.widget.ArrayAdapter;
 import android.widget.GridView;
 import android.view.MotionEvent;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import com.sjsu.cmpe277.weather.DataModel.AppConstants;
 import com.sjsu.cmpe277.weather.DataModel.City;
@@ -25,13 +23,9 @@ import com.sjsu.cmpe277.weather.R;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import java.text.DateFormat;
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
-import java.util.Date;
 import java.util.List;
-import java.util.TimeZone;
 
 /**
  * Created by laurazhou on 10/30/17.
@@ -215,7 +209,7 @@ public class CityViewActivity extends AppCompatActivity {
         protected void onPostExecute(String forecastInfo) {
             try {
                 JsonParserForecast jsonParserForecast = new JsonParserForecast(forecastInfo, context);
-                forecastInfos = jsonParserForecast.getForecast5dayInfo();
+                forecastInfos = jsonParserForecast.getForecast4dayInfo();
 
                 listViewAdapter = new ArrayAdapter<String> (
                         context,

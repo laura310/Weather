@@ -71,12 +71,12 @@ public class JsonParserForecast {
         return infos;
     }
 
-    public List<String> getForecast5dayInfo() throws JSONException {
+    public List<String> getForecast4dayInfo() throws JSONException {
         List<String> infos = new ArrayList<>();
-        int cntPerDay = jsonObject.getInt("cnt") / 5;
+        int cntPerDay = jsonObject.getInt("cnt") / 4;
         JSONArray jsonArray = jsonObject.getJSONArray("list");
 
-        for(int i = 0; i < 5; i++) {
+        for(int i = 0; i < 4; i++) {
             int dayNoonIndex = i * cntPerDay + cntPerDay / 2;
             JSONObject dayNoonObj = jsonArray.getJSONObject(dayNoonIndex);
             JSONObject dayNoonWeatherObj = dayNoonObj.getJSONArray("weather").getJSONObject(0);
