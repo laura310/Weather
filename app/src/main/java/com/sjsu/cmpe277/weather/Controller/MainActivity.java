@@ -145,7 +145,9 @@ public class MainActivity extends AppCompatActivity implements LocationListener{
         SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(MainActivity.this);
         String s = preferences.getString(getString(R.string.pref_temp_key), getString(R.string.pref_C_value));
         Log.i("Info", "current unit is " + s);
-
+        ActivityCompat.requestPermissions(MainActivity.this,
+                new String[]{Manifest.permission.ACCESS_FINE_LOCATION},
+                1);
 
         listView.setLongClickable(true);
         listView.setOnItemLongClickListener(new AdapterView.OnItemLongClickListener() {
@@ -193,14 +195,14 @@ public class MainActivity extends AppCompatActivity implements LocationListener{
     public City getCurrentCity2(){
         City c = null;
         if (ContextCompat.checkSelfPermission(MainActivity.this,
-                Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+                Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
             if (ActivityCompat.shouldShowRequestPermissionRationale(MainActivity.this,
-                    Manifest.permission.ACCESS_COARSE_LOCATION)) {
+                    Manifest.permission.ACCESS_FINE_LOCATION)) {
                 ActivityCompat.requestPermissions(MainActivity.this,
-                        new String[]{Manifest.permission.ACCESS_COARSE_LOCATION}, MY_PERMISSION_REQUEST_CODE);
+                        new String[]{Manifest.permission.ACCESS_FINE_LOCATION}, MY_PERMISSION_REQUEST_CODE);
             } else {
                 ActivityCompat.requestPermissions(MainActivity.this,
-                        new String[]{Manifest.permission.ACCESS_COARSE_LOCATION}, MY_PERMISSION_REQUEST_CODE);
+                        new String[]{Manifest.permission.ACCESS_FINE_LOCATION}, MY_PERMISSION_REQUEST_CODE);
             }
         } else {
             locationManager = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
@@ -210,7 +212,7 @@ public class MainActivity extends AppCompatActivity implements LocationListener{
             try {
                 currentCity = hereLocation(_location.getLatitude(), _location.getLongitude());
                 c = new City(currentCity, String.valueOf(_location.getLatitude()),String.valueOf(_location.getLongitude()));
-                Log.i("Info", currentCity);
+                Log.i("Info", currentCity + " " + String.valueOf(_location.getLatitude()) + String.valueOf(_location.getLongitude()));
             } catch (Exception e) {
                 Toast.makeText(MainActivity.this, "Current Location Not Available", Toast.LENGTH_LONG).show();
                 Log.e("Info", "error");
@@ -224,26 +226,11 @@ public class MainActivity extends AppCompatActivity implements LocationListener{
             case MY_PERMISSION_REQUEST_CODE:{
                 if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED){
                     if (ContextCompat.checkSelfPermission(MainActivity.this,
-                            Manifest.permission.ACCESS_COARSE_LOCATION) == PackageManager.PERMISSION_GRANTED) {
-                            locationManager = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
-                            Location location = locationManager.getLastKnownLocation(LocationManager.NETWORK_PROVIDER);
-                            try{
-                                currentCity = hereLocation(location.getLatitude(), location.getLongitude());
-                                Log.i("Info", currentCity);
-                                List<String> cities = cityDB.getAllCities();
-                                if (cities.contains(currentCity)) {
-                                    Toast.makeText(MainActivity.this, "Current location has been added",Toast.LENGTH_LONG).show();
-                                } else {
-                                    cityDB.insertCity(currentCity, String.valueOf(location.getLatitude()), String.valueOf(location.getLongitude()));
-                                    //gridViewAdapter.add(currentCity);
-                                    //gridViewAdapter.notifyDataSetChanged();
-                                }
-                            } catch(Exception e){
-                                Toast.makeText(MainActivity.this, "Location Not Available",Toast.LENGTH_LONG).show();
-                                Log.e("error", e.toString());
-                            }
+                            Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED) {
                     }
                 } else {
+                    Toast.makeText(MainActivity.this, "Current location can not be accessed",Toast.LENGTH_LONG).show();
+
                     Log.e("Error", "No permission");
                 }
             }
